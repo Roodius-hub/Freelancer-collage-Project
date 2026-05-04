@@ -64,13 +64,16 @@ export const updateUser = async (req:Request, res:Response) => {
 // create address 
 
 export const UserAddress = async ({req , res } :reqresTypes) => {
-    const userid = req.user?.id;
+    if (!req.user?.id) {
+        return res.status(401).json({ message: "User not authenticated" });
+    }
+    const id:string = req.user?.id as string;
     const { city, state, country,  zipCode }  = req.body;
 
     try {
         const address = db.address.upsert({
             where: {
-                userId:userid
+                id:id
             }, 
             update:{
                 city, 
@@ -83,9 +86,7 @@ export const UserAddress = async ({req , res } :reqresTypes) => {
                 state,
                 country,
                 zipCode,
-                user:{
-                    connect:{id: userid}
-                }
+                userId:id
             },
         });
 
@@ -105,8 +106,14 @@ export const UserAddress = async ({req , res } :reqresTypes) => {
 
 
 // create skills 
-export const CreateSkill =  async ({req,res}: reqresTypes) => {
-    const userid = req.user?.id;
+export const CreateSkill =  async (req:Request, res:Response) => {
+    if (!req.user?.id) {
+        return res.status(401).json({ message: "User not authenticated" });
+    }
+    if (!req.user?.id) {
+        return res.status(404).json()
+    }
+    const userid:string = req.user?.id as string;
     const skills: string[] = req.body.skills;
 
      console.log(userid);
