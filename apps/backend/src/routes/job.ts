@@ -5,15 +5,15 @@ import { createJobs, deleteJob, getJobs, updateJob } from "../controllers/jobCon
 const router = express.Router();
 
 // post jobs
-router.post("/jobs/post", checkUserExisi, createJobs);
+router.post("/create", checkUserExisi,  createJobs);
 
 // update jobs
-router.patch("/jobs/update/:id", checkUserExisi, updateJob);
+router.patch("/update/:id", checkUserExisi, updateJob);
 
 // get all jobs list
 router.get("/alljobs", checkUserExisi, getJobs);
 
 //delete jobs 
-router.delete("/jobs/:id", checkUserExisi, deleteJob);
+router.delete("/:id", checkUserExisi, deleteJob);
 
 export default router;
