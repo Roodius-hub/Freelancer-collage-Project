@@ -1,6 +1,6 @@
 import express from "express";
 import { checkUserExisi } from "../middlewares/user";
-import { createJobs, deleteJob, getJobs, updateJob } from "../controllers/jobController";
+import { createJobs, deleteJob, getJobs, jobStatus, updateJob } from "../controllers/jobController";
 
 const router = express.Router();
 
@@ -11,9 +11,11 @@ router.post("/create", checkUserExisi,  createJobs);
 router.patch("/update/:id", checkUserExisi, updateJob);
 
 // get all jobs list
-router.get("/alljobs", checkUserExisi, getJobs);
+router.get("/alljobs", getJobs);
 
 //delete jobs 
-router.delete("/:id", checkUserExisi, deleteJob);
+router.delete("/delete/:id", checkUserExisi, deleteJob);
+
+router.patch("/jobstatus/:id", checkUserExisi, jobStatus);
 
 export default router;

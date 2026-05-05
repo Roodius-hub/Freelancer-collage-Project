@@ -1,3 +1,4 @@
+import { JobStatus } from "@repo/db";
 import { db } from "../db/db";
 import { jobType } from "../types/jobTypes";
 import { reqresTypes } from "../types/userTypes";
@@ -76,18 +77,27 @@ export const updateJob = async (req:Request, res:Response) => {
 }
 
 // delete job 
-export const deleteJob = async ({req, res}: reqresTypes) => {
+export const deleteJob = async (req:Request, res:Response) => {
+    if (!req.user?.id) {
+        return res.status(401).json({message: "User not an authenticated"})
+    }
     const jobId = req.params.jobId as string;
-    const userid = req.user?.id;
+    const userid:string = req.user?.id as string;
 
     try {
-        const response = await db.job.delete({
+        const response = await db.job.deleteMany({
             where:{
                 id:jobId,
                 clientId:userid,
             },
         })
         console.log(response);
+
+        if (response.count == 0) {
+            return res.status(403).json({
+                message: "Unauthorized or job not found",
+            });
+        }
 
         return res.status(200).json({message :"User Deleted successfully"})
 
@@ -100,12 +110,9 @@ export const deleteJob = async ({req, res}: reqresTypes) => {
 
 // get post 
 
-export  const getJobs= async ({req, res}: reqresTypes) => {
+export  const getJobs= async (req:Request, res: Response) => {
     try {
         const posts = await db.job.findMany({
-            include: {
-                client:true
-            },
             orderBy:{
                 createdAt:'desc'
             }
@@ -117,4 +124,56 @@ export  const getJobs= async ({req, res}: reqresTypes) => {
 
         return res.status(500).json({message: "Internal Error"})
     }
+}
+
+
+// job status 
+
+export const  jobStatus = async (req: Request, res: Response) => {
+    if (!req.user?.id) {
+        return res.status(401).json({message: "User not an authenticated"})
+    }
+
+    const userid  =  req.user?.id;
+    const jobid = req.params.id ;
+    const { status } = req.body;
+
+    console.log(req.params)
+    console.log(req.params.id)
+
+    if(!jobid) {
+        return res.status(401).json({message: "Job Id is required"});
+    }
+
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    if(!Object.values(JobStatus).includes(status as JobStatus)) {
+        return res.status(400).json({ message: "Invalid status value" });
+    }
+
+    try {
+        const response = await db.job.updateMany({
+            where: {
+                id:jobid as string,
+                clientId:userid
+            },
+            data:{
+                status: status  as JobStatus,
+            }
+        });
+
+        if (response.count === 0) {
+            return res.status(403).json({
+                message: "Unauthorized or job not found",
+        });
+     }
+
+    } catch (error) {
+        console.log(error) 
+        return res.status(500).json({message: "Error while updating"})
+    }
+
+
 }

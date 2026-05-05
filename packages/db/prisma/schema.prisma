@@ -101,7 +101,7 @@ enum JobStatus {
   CANCELLED
 }
 
-enum BidStatus {
+enum BidStatus {  
   PENDING
   ACCEPTED
   REJECTED

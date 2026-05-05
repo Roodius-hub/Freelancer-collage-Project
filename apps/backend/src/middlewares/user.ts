@@ -16,6 +16,8 @@ export const checkUserExisi = async (req:Request,res:Response,next:NextFunction)
         req,
         secret: process.env.NEXTAUTH_SECRET
     })
+        console.log("URL:", req.originalUrl);
+        console.log("params:", req.params);
         console.log(req.cookies);
         console.log(req.headers.cookie);
         // const token = req.cookies["next-auth.session-token"] ||
