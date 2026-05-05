@@ -134,13 +134,11 @@ export const  jobStatus = async (req: Request, res: Response) => {
         return res.status(401).json({message: "User not an authenticated"})
     }
 
-    const userid  =  req.user?.id;
+    const userid:string =  req.user?.id as string;
     const jobid = req.params.id ;
     const { status } = req.body;
-
     console.log(req.params)
     console.log(req.params.id)
-
     if(!jobid) {
         return res.status(401).json({message: "Job Id is required"});
     }
@@ -149,7 +147,7 @@ export const  jobStatus = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Status is required" });
     }
 
-    if(!Object.values(JobStatus).includes(status as JobStatus)) {
+    if(!Object.values(JobStatus).includes(status)) {
         return res.status(400).json({ message: "Invalid status value" });
     }
 
@@ -169,6 +167,10 @@ export const  jobStatus = async (req: Request, res: Response) => {
                 message: "Unauthorized or job not found",
         });
      }
+
+     return res.status(200).json({
+        message: "status upated successfully ", status
+     })
 
     } catch (error) {
         console.log(error) 
