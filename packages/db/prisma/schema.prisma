@@ -25,6 +25,7 @@ model User {
   jobs      Job[] @relation("UserJobs")
   bids      Bid[] @relation("UserBids")
 
+  role      UserRole  @default(CLIENT)
 }
 
 model Skill {
@@ -105,4 +106,10 @@ enum BidStatus {
   PENDING
   ACCEPTED
   REJECTED
+}
+
+enum UserRole {
+  CLIENT 
+  FREELANCER
+  ADMIN
 }

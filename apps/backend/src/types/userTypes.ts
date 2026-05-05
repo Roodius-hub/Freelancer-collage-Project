@@ -16,3 +16,10 @@ declare module "express-serve-static-core" {
         }
     }
 }
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id: string;
+    role: string;
+  }
+}
