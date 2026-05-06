@@ -4,31 +4,31 @@ import { useSession, signIn, signOut } from "next-auth/react"
 import { useState } from "react"
 import { FaGoogle } from 'react-icons/fa'; // Font Awesome version
 import { FaGithub } from "react-icons/fa";
+import AuthButton from "./Authbutton";
+import { UserRole } from "./UserRole";
 
 
-export default function UserMenu() {
+export default function   UserMenu() {
   const { data: session, status } = useSession()
   const [open, setOpen] = useState(false)
-
+  const [role , SetRole] = useState(false);
+  
   if (status === "loading") return null
 
   // 🔓 NOT LOGGED IN
   if (!session) {
     return (
-      <div className="flex gap-2">
-        <button
-          onClick={() =>  signIn("google")}
-          className="flex justify-center items-center gap-1 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222]"
-        >
-          <FaGoogle/>Google
-        </button>
+      <div>
 
-        <button
-          onClick={() => signIn("github")}
-          className="flex justify-center items-center gap-1 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222]"
-        >
-          <FaGithub/>GitHub
-        </button>
+      
+      <div className=" visible flex items-center gap-2 cursor-pointer" onClick={() => {
+        SetRole(!role)
+      }}>
+        {
+          !role ? <UserRole /> : <AuthButton /> 
+        }
+      {/* <UserRole /> */}
+      </div>
       </div>
     )
   }
