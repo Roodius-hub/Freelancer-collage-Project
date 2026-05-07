@@ -2,7 +2,8 @@ import NextAuth from "next-auth"
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github"
-import {prisma} from "@repo/db";
+import {prisma, UserRole} from "@repo/db";
+import { cookies } from "next/headers"
 
 const handler  = NextAuth({
   providers: [
@@ -44,6 +45,11 @@ const handler  = NextAuth({
     }, 
     signIn: async ({ user }) => {
       try {
+        const CookieStore =  cookies();
+        const role = (await CookieStore).get("role")?.value;
+
+        console.log(role)
+
         const existing = await prisma.user.findUnique({
           where: { email: user.email! },
         });
@@ -54,10 +60,11 @@ const handler  = NextAuth({
               id:user.id,
               name: user.name,
               email: user.email,
+              role:role as UserRole
             },
           });
         }
-
+        user.role = role; 
         return true;
       } catch (error) {
         console.log(error);

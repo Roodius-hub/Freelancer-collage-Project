@@ -1,4 +1,4 @@
-import {atom, useRecoilState} from "recoil"
+import {atom} from "jotai"
 
 
 export const roleState = atom({
