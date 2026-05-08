@@ -39,9 +39,9 @@ Prerequisites
 
 Make sure the following tools are installed on your system:
 
-Node.js
-npm or yarn or bun
-PostgreSQL
+Node.js ,
+npm or yarn or bun ,
+PostgreSQL ( PrismaORM ) ,
 Git
 
 ## Installation

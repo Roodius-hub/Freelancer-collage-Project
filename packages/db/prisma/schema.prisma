@@ -12,104 +12,205 @@ datasource db {
   provider = "postgresql"
 }
 
-
 model User {
-  id        String   @id @default(cuid())
-  googleId  String? @unique
-  github    String?
-  name      String?
-  email     String? @unique
-  address   Address?
-  userSkill     UserSkill[] 
-  // 🔥 ADD THESE
-  jobs      Job[] @relation("UserJobs")
-  bids      Bid[] @relation("UserBids")
+  id          String   @id @default(cuid())
 
-  role      UserRole  @default(CLIENT)
+  googleId    String?  @unique
+  github      String?
+
+  name        String?
+  email       String?  @unique
+  image       String?
+
+  bio         String?
+  hourlyRate  Float?
+
+  role        UserRole @default(CLIENT)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // relations
+  address      Address?
+  userSkill    UserSkill[]
+
+  jobs         Job[] @relation("UserJobs")
+  bids         Bid[] @relation("UserBids")
+
+  sentMessages Message[] @relation("SenderMessages")
+
+  reviews      Review[] @relation("FreelancerReviews")
 }
 
 model Skill {
   id          String   @id @default(cuid())
-  name        String @unique
-    
-  userSkill    UserSkill[]  
+
+  name        String   @unique
+
+  userSkill   UserSkill[]
+
+  createdAt   DateTime @default(now())
 }
 
 model UserSkill {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
+
   userId      String
   skillId     String
 
-  user        User  @relation(fields: [userId], references: [id])
-  skill       Skill @relation(fields: [skillId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skill       Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
 
-  // prevent duplicates like same skill twice
+  createdAt   DateTime @default(now())
+
   @@unique([userId, skillId])
 }
 
 model Address {
-  id        String @id @default(cuid())
+  id          String   @id @default(cuid())
 
-  userId    String @unique
-  user      User   @relation(fields: [userId], references: [id])
+  userId      String   @unique
 
-  city      String?
-  state     String?
-  country   String?
-  zipCode   String?
+  city        String?
+  state       String?
+  country     String?
+  zipCode     String?
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Job {
-  id          String   @id @default(cuid())
+  id            String      @id @default(cuid())
 
-  title       String
-  description String
-  budget      Float
-  
-  clientId    String
-  client      User     @relation("UserJobs", fields: [clientId], references: [id])
+  title         String
+  description   String
 
-  bids        Bid[]
+  budgetMin     Float
+  budgetMax     Float
 
-  status      JobStatus @default(OPEN)
+  deadline      DateTime
 
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  biddingEndsAt DateTime?
+
+  clientId      String
+
+  status        JobStatus   @default(OPEN)
+
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  // relations
+  client        User        @relation("UserJobs", fields: [clientId], references: [id], onDelete: Cascade)
+
+  bids          Bid[]
+  conversations Conversation[]
+
+  selectedBidId String?
+  selectedBid   Bid?        @relation("SelectedBid", fields: [selectedBidId], references: [id])
+
+  reviews       Review[]
 }
 
 model Bid {
-  id           String   @id @default(cuid())
+  id             String      @id @default(cuid())
 
-  amount       Float
-  message      String?
+  amount         Float
 
-  jobId        String
-  job          Job      @relation(fields: [jobId], references: [id])
+  deliveryDays   Int?
 
-  freelancerId String
-  freelancer   User     @relation("UserBids", fields: [freelancerId], references: [id])
+  proposal       String?
 
-  status       BidStatus @default(PENDING)
+  freelancerId   String
+  jobId          String
 
-  createdAt    DateTime  @default(now())
+  status         BidStatus   @default(PENDING)
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  // relations
+  freelancer     User        @relation("UserBids", fields: [freelancerId], references: [id], onDelete: Cascade)
+
+  job            Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  selectedForJob Job[]       @relation("SelectedBid")
+
+  conversation   Conversation?
+
+  @@unique([freelancerId, jobId])
 }
 
+model Conversation {
+  id             String      @id @default(cuid())
+
+  jobId          String
+  bidId          String @unique
+
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  // relations
+  job            Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  bid            Bid         @relation(fields: [bidId], references: [id], onDelete: Cascade)
+
+  messages       Message[]
+}
+
+model Message {
+  id              String       @id @default(cuid())
+
+  conversationId  String
+  senderId        String
+
+  text            String
+
+  isRead          Boolean      @default(false)
+
+  createdAt       DateTime     @default(now())
+
+  // relations
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  sender          User         @relation("SenderMessages", fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model Review {
+  id             String      @id @default(cuid())
+
+  rating         Int
+  comment        String?
+
+  freelancerId   String
+  jobId          String
+
+  createdAt      DateTime    @default(now())
+
+  freelancer     User        @relation("FreelancerReviews", fields: [freelancerId], references: [id], onDelete: Cascade)
+
+  job            Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, freelancerId])
+}
 
 enum JobStatus {
   OPEN
+  IN_BIDDING
+  ASSIGNED
   IN_PROGRESS
   COMPLETED
   CANCELLED
 }
 
-enum BidStatus {  
+enum BidStatus {
   PENDING
   ACCEPTED
   REJECTED
+  WITHDRAWN
 }
 
 enum UserRole {
-  CLIENT 
+  CLIENT
   FREELANCER
   ADMIN
 }
