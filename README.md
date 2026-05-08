@@ -31,6 +31,55 @@ Admin panel for platform management
 Scalable, secure, and user-friendly design
 
 
+## Project Setup
+
+Follow the steps below to set up and run the project locally.
+
+Prerequisites
+
+Make sure the following tools are installed on your system:
+
+Node.js
+npm or yarn or bun
+PostgreSQL
+Git
+
+## Installation
+
+Clone the repository
+
+```git clone <repository-url> && cd project-name ```
+
+### Install dependencies
+
+```bun install```
+
+### Configure environment variables
+
+Create a .env file in the root directory and add the required environment variables:
+
+``` 
+
+DATABASE_URL="DATABASE_URL="postgresql://postgres:password@localhost:5432/mydb?schema=public"
+NEXTAUTH_SECRET=your_secret_key
+NEXTAUTH_URL=http://localhost:3000
+JWT_SECRET=your_jwt_secret
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_CLIENT_SECRET=
+GITHUB_CLIENT_ID= 
+
+```
+
+Run the development server
+bun run dev
+
+Open the application
+
+Visit:
+
+http://localhost:3000
+
 Run  Docker Container : 
         ```docker run --name some-postgres -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_DB=mydb -d -p 5432:5432     postgres```
 
