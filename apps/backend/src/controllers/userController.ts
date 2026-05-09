@@ -35,6 +35,7 @@ export const updateUser = async (req:Request, res:Response) => {
     const id:string = req.user?.id as string;
     const name:string = req.body.name as string;
     const email:string = req.body.email as string; 
+    const bio:string = req.body.bio as string;
     // console.log(id)
     try {
         const response = await db.user.update({
@@ -44,6 +45,7 @@ export const updateUser = async (req:Request, res:Response) => {
             data:{
                 name:name,
                 email:email,
+                bio:bio,
             }
         });
 

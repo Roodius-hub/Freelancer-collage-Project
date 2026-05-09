@@ -1,6 +1,6 @@
 import { app } from "./src/app";
+import http from "http";
 
-const port = process.env.PORT;
-// console.log(port)
+const server = http.createServer(app);
 
-app.listen(port, () => console.log(`server running on port => ${port}`));
+export default server;
