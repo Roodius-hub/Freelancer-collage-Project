@@ -1,11 +1,11 @@
 import { test, describe, expect } from "bun:test";
-import { parse } from "zod/v4/core";
 
 describe("Message Sent from room  1  reaches  another particepent in room 1", async () => {
     const ws1 = new WebSocket("ws://localhost:3001");
     const ws2 = new WebSocket("ws://localhost:3001");
 
 
+    // First Promise
     await new Promise<void>((resolve, rejecct) => {
         let count = 0;
       ws1.onopen = () => {
@@ -39,22 +39,21 @@ describe("Message Sent from room  1  reaches  another particepent in room 1", as
         }
     }))
 
+    // new Promise
     await new Promise<void>((resolve) => {
-        ws2.onmessage = ({data}) => {
-          const parseData = JSON.parse(data);
-          expect(parseData.type == 'send_message');  
-          expect(parseData.payload.text == 'hi there');
-          resolve();
-      }
+        ws2.onmessage = ({ data }) => {
+            const parseData = JSON.parse(data);
+            expect(parseData.type == 'send_message');
+            expect(parseData.payload.text == 'hi there');
+            resolve();
+        }
       
-      ws1.send(JSON.stringify({
-          type: "send_message",
-          payload: {
-              text:"hi there"
-          }
-      }))
-    })
+        ws1.send(JSON.stringify({
+            type: "send_message",
+            payload: {
+                text: "hi there"
+            }
+        })); 
+    });
     
-
-      
 })
