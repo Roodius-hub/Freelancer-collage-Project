@@ -5,10 +5,12 @@ import { NextFunction } from "express";
 import type { Request, Response } from "express";
 import { getToken } from "next-auth/jwt"
 import env from "dotenv"
+
 env.config();
 
 // const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET);
 // console.log(process.env.NEXTAUTH_SECRET)
+
 
 // middleware
 export const checkUserExisi = async (req:Request,res:Response,next:NextFunction) => {
