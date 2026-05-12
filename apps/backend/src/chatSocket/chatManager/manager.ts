@@ -1,9 +1,3 @@
-
-interface payload {
-    text: String;
-    username:String
-}
-
 export class ChatManger  {
     private static instance:ChatManger;
     private rooms = new Map<string, Set<WebSocket>>();
@@ -11,7 +5,6 @@ export class ChatManger  {
     constructor() {
         this.rooms = new Map<string, Set<WebSocket>>();
     }
-    
     
     public getInstance():ChatManger {
         if (!ChatManger.instance) {
@@ -29,9 +22,10 @@ export class ChatManger  {
     }
 
     public leaveRoom(conversationId:string, ws:WebSocket) {
-          
-    }
-    
+        if (this.rooms.has(conversationId)) {
+            this.rooms.delete(conversationId);
+        }
+    } 
 }
 
 
