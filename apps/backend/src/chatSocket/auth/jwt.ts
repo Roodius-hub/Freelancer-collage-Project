@@ -1,4 +1,4 @@
-import { db } from "../../src/db/db";
+import { db } from "../../../src/db/db";
 import jwt from "jsonwebtoken";
 import { getToken } from "next-auth/jwt"
 import type { Request, Response } from "express";
