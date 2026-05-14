@@ -1,42 +1,70 @@
-import { Events } from "../event";
+import { CustomWebSocket } from "../types";
 
 export class ChatManger  {
     private static instance:ChatManger;
-    private rooms = new Map<string, Set<WebSocket>>();
+    private rooms = new Map<string, Set<CustomWebSocket>>();
 
-    constructor() {
-        this.rooms = new Map<string, Set<WebSocket>>();
+    private constructor() {
+        this.rooms = new Map<string, Set<CustomWebSocket>>();
     }
     
-    public getInstance():ChatManger {
+    public static getInstance():ChatManger {
         if (!ChatManger.instance) {
             ChatManger.instance = new ChatManger();
         }
         return ChatManger.instance;
     }
-      
-    public joinRoom(data:any) {
-      console.log("Recieved: ", data.toString());
-      const parsed = JSON.parse(data.toString())
-    
-      const  {type, payload} = parsed;
-    
-      // join conversation
-      if(type === Events.JOIN_CONVERSATION) {
-          const { conversationId, text, ws } = payload;
 
+    // join room
+    public joinRoom(conversationId: string, ws: CustomWebSocket):void {        
         if (!this.rooms.has(conversationId)) {
           this.rooms.set(conversationId, new Set())
         };
 
         this.rooms.get(conversationId)?.add(ws);
+        if (!ws.conversation) {
+            ws.conversation = new Set()
+        }
+        ws.conversation.add(conversationId);
     }
 
-    public leaveRoom(conversationId:string, ws:WebSocket) {
-        if (this.rooms.has(conversationId)) {
-            this.rooms.delete(conversationId);
+    // leaving room
+    public leaveRoom(conversationId:string, ws:CustomWebSocket):void {
+        const room = this.rooms.get(conversationId);
+        if (room) {
+            room.delete(ws);
+            if (room.size == 0) {
+                this.rooms.delete(conversationId);
+            }
         }
+        ws.conversation?.delete(conversationId);
     } 
+
+
+    // broadcast  message
+    public broadcastToConversation(conversationId: string, message: any, exclude?: CustomWebSocket):void {
+        const room = this.rooms.get(conversationId);
+        if (!room) return;
+
+        const data = JSON.stringify(message);
+        for (const client of room) {
+            if (client !== exclude && client.readyState === WebSocket.OPEN)
+                client.send(data);
+        }
+    }
+
+    //  auto  cleanup
+    public registerSocket(ws: CustomWebSocket): void {
+        ws.conversation = new Set();
+
+        ws.on('close' ,() => {
+            ws.conversation?.forEach((convId) => {
+                this.leaveRoom(convId as string, ws);
+            });
+            ws.conversation?.clear();
+        })
+        
+    }
 }
 
 
