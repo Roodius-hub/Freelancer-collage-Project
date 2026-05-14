@@ -1,30 +1,17 @@
 import { WebSocketServer, WebSocket as WebSocketWsType } from "ws";
 import server from "../../server";
 import  { Events }  from "./event";
-import rooms from "./chatManager/manager";
+import {ChatManger} from "./chatManager/manager";
+import { string } from "zod/v3";
 // web socket server
 const wss = new WebSocketServer({server});
 
 const relayer_URL = "ws://localhost:3002";
 const relayerSocket = new WebSocket(relayer_URL);
-
+const rooms = new ChatManger();
 relayerSocket.onmessage = ({data}) => {
-  console.log("Recieved: ", data.toString());
-  const parsed = JSON.parse(data.toString())
-
-  const  {type, payload} = parsed;
-
-  // join conversation
-  if(type === Events.JOIN_CONVERSATION) {
-      const { conversationId, text } = payload;
-
-      if(!rooms.has(conversationId)) {
-          rooms.set(conversationId, new Set());
-      }
-      
-      rooms.get(conversationId)?.add(ws);
-
-      console.log(`Joined room conversationId: ${conversationId}`);
+    rooms.joinRoom(data);
+      console.log(`Joined room conversationId: ${data.payload.conversationId}`);
   }
 
   // send message 
