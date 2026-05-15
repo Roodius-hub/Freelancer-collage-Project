@@ -1,18 +1,18 @@
 import { CustomWebSocket } from "../types";
 
-export class ChatManger  {
-    private static instance:ChatManger;
+export class ChatManager  {
+    private static instance:ChatManager;
     private rooms = new Map<string, Set<CustomWebSocket>>();
 
     private constructor() {
         this.rooms = new Map<string, Set<CustomWebSocket>>();
     }
     
-    public static getInstance():ChatManger {
-        if (!ChatManger.instance) {
-            ChatManger.instance = new ChatManger();
+    public static getInstance():ChatManager {
+        if (!ChatManager.instance) {
+            ChatManager.instance = new ChatManager();
         }
-        return ChatManger.instance;
+        return ChatManager.instance;
     }
 
     // join room
