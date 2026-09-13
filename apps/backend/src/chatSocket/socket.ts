@@ -1,13 +1,13 @@
 import { WebSocketServer, WebSocket as WebSocketWsType } from "ws";
 import server from "../../server";
 import  { Events }  from "./event";
-import {ChatManger} from "./chatManager/manager";
+import {ChatManager} from "./chatManager/manager";
 // web socket server
 const wss = new WebSocketServer({server});
 
 const relayer_URL = "ws://localhost:3002";
 const relayerSocket = new WebSocket(relayer_URL);
-const rooms = new ChatManger();
+const rooms =  ChatManager.getInstance();
 relayerSocket.onmessage = ({data}) => {
   console.log("Recieved: ", data.toString());
   const parsed = JSON.parse(data.toString())

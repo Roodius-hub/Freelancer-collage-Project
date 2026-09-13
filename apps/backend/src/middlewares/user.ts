@@ -30,7 +30,6 @@ export const checkUserExisi = async (req:Request,res:Response,next:NextFunction)
         if (!token || !token.sub) {
             return res.status(401).json({message: "Unautherized !"});
         }
-
         // verfify 
         console.log(req.user);
         req.user = {
