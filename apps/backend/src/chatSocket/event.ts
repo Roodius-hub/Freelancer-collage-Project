@@ -4,3 +4,4 @@ export enum Events {
   TYPING = "typing",
   NEW_MESSAGE = "new_message"
 }
+  
