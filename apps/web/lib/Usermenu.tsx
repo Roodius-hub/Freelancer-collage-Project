@@ -6,13 +6,13 @@ import { FaGoogle } from 'react-icons/fa'; // Font Awesome version
 import { FaGithub } from "react-icons/fa";
 import AuthButton from "./Authbutton";
 import { UserRole } from "./UserRole";
-
+import { useRouter } from "next/navigation";
 
 export default function   UserMenu() {
   const { data: session, status } = useSession()
   const [open, setOpen] = useState(false)
   const [role , SetRole] = useState(false);
-  
+  const navigate = useRouter();
   if (status === "loading") return null
 
   // 🔓 NOT LOGGED IN
@@ -52,7 +52,7 @@ export default function   UserMenu() {
       {/* Dropdown */}
       {open && (
         <div className="absolute right-0 mt-2 w-40 bg-[#111] border border-[#2a2a2a] rounded-lg shadow-lg p-2">
-          <button className="w-full text-left px-3 py-2 hover:bg-[#222] rounded">
+          <button onClick={() => setTimeout(() => {navigate.push("/profile")}, 1000)} className="w-full text-left px-3 py-2 hover:bg-[#222] rounded">
             Profile
           </button>
 
