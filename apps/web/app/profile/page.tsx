@@ -11,6 +11,8 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
+import axios from "axios";
+import { signOut } from "next-auth/react";
 
 export default function UserSettings() {
   const [form, setForm] = useState({
@@ -39,6 +41,24 @@ export default function UserSettings() {
 
     // API call
   };
+
+  const deleteAccount = async () => {
+    try {
+      const response = await axios.delete("http://localhost:3001/user/deleteprofile", {
+        withCredentials:true
+      });
+      console.log(response.data);
+
+      if(response.status == 200) {
+        await signOut({
+          callbackUrl:"/"
+        });
+      }
+
+    } catch(error:any) {
+        console.error('Delete failed:', error.response?.data || error.message);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-black px-4 py-8 text-white">
@@ -257,7 +277,7 @@ export default function UserSettings() {
                 </p>
               </div>
 
-              <button
+              <button onClick={deleteAccount}
                 type="button"
                 className="flex shrink-0 items-center gap-2 rounded-lg border border-red-900/60 px-4 py-2 text-sm font-medium text-red-500 transition hover:bg-red-950/30"
               >
