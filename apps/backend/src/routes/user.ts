@@ -1,5 +1,5 @@
 import express from "express";
-import { CreateSkill, getUser, updateUser, UserAddress } from "../controllers/userController";
+import { CreateSkill, getUser, updateUser, UserAddress, DeleteAccount } from "../controllers/userController";
 import { checkUserExisi } from "../middlewares/user";
 
 const router = express.Router();
@@ -17,6 +17,8 @@ router.post("/address", checkUserExisi , UserAddress);
 
 // skills
 router.post("/skills", checkUserExisi, CreateSkill);
+
+router.delete("/deleteprofile", checkUserExisi, DeleteAccount);
 
 export default router;
 

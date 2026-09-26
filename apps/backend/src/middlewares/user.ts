@@ -13,7 +13,7 @@ env.config();
 
 
 // middleware
-export const checkUserExisi = async (req:Request,res:Response,next:NextFunction) => {
+export const    checkUserExisi = async (req:Request,res:Response,next:NextFunction) => {
      try {
         const token = await getToken({
             req,
@@ -36,8 +36,7 @@ export const checkUserExisi = async (req:Request,res:Response,next:NextFunction)
 
     } catch (error) {
         console.error("Auth error:", error);
-
-        return res.status(401).json({
+         res.status(401).json({
             message: "Invalid authentication",
         });
     }

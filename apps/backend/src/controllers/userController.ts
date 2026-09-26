@@ -1,6 +1,7 @@
 import { reqresTypes } from "../types/userTypes"
 import { db } from "../db/db"
 import type {Request, Response} from "express"
+import { prisma } from "@repo/db";
 
 // getting user
 export const getUser = async (req:Request, res:Response) => {
@@ -36,6 +37,7 @@ export const updateUser = async (req:Request, res:Response) => {
     const name:string = req.body.name as string;
     const email:string = req.body.email as string; 
     const bio:string = req.body.bio as string;
+    const phone:string = req.body.phone as string;
     // console.log(id)
     try {
         const response = await db.user.update({
@@ -44,8 +46,8 @@ export const updateUser = async (req:Request, res:Response) => {
             }, 
             data:{
                 name:name,
-                email:email,
                 bio:bio,
+                phone:phone,
             }
         });
 
@@ -65,33 +67,37 @@ export const updateUser = async (req:Request, res:Response) => {
 
 // create address 
 
-export const UserAddress = async ({req , res } :reqresTypes) => {
+export const UserAddress = async (req:Request , res:Response) => {
     if (!req.user?.id) {
         return res.status(401).json({ message: "User not authenticated" });
     }
+    console.log("request Reached for adddress  updation");
     const id:string = req.user?.id as string;
-    const { city, state, country,  zipCode }  = req.body;
-
+    const { city, state, country,  zipCode, street }  = req.body;
+    console.log(id);
     try {
-        const address = db.address.upsert({
-            where: {
+        console.log("inside try  catch")
+        const address = await db.address.upsert({
+            where: {    
                 id:id
             }, 
             update:{
-                city, 
-                state,
-                country, 
-                zipCode,
+                city:city,
+                state:state,
+                country:country,
+                zipCode:zipCode,
+                street:street,
             },
             create:{
-                city, 
-                state,
-                country,
-                zipCode,
+                city:city,
+                state:state,
+                country:country,
+                zipCode:zipCode,
+                street:street,
                 userId:id
             },
         });
-
+        // console.log(address);
         return res.status(200).json({
             message : "Address saved Successfully", 
             address
@@ -159,5 +165,37 @@ export const CreateSkill =  async (req:Request, res:Response) => {
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: "Failed to update skills" });
+    }
+}
+
+
+//delete user 
+export const DeleteAccount = async (req:Request, res:Response) => {
+    const id:string = req.user?.id as string;
+    console.log(id);
+
+    if (!id) {
+        res.status(404).json({
+            message: "User Not Found!"
+        })
+    }
+
+    try {
+        const user = await prisma.user.delete({
+            where: {
+                id:id
+            }
+        })
+
+        console.log("Deleted User", user);
+
+       return res.status(200).json({
+            message: "Account deleted successfully"
+        })
+    } catch (err) {
+        console.log("ERROR", err);
+        return res.status(500).json({
+            message: "Internal Server Error Please Try Again Later!"
+        })
     }
 }

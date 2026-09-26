@@ -10,20 +10,27 @@ import {
   Camera,
   Save,
   Trash2,
+  FileText,
 } from "lucide-react";
 import axios from "axios";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 export default function UserSettings() {
+  const { data: session } = useSession();
+
   const [form, setForm] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-    phone: "+91 9876543210",
-    address: "Haldwani, Uttarakhand",
+    street: "Haldwani, Uttarakhand",
     city: "Haldwani",
     state: "Uttarakhand",
     country: "India",
+    zipCode: "263139"
   });
+
+  const [details, SetDetails] = useState({
+    name: "",
+    phone: "",
+    bio: "",
+  })
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
@@ -34,31 +41,71 @@ export default function UserSettings() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     console.log("Updated user:", form);
-
-    // API call
+    try {
+      const response = await axios.post("http://localhost:3001/user/address", form, {
+        withCredentials: true,
+      })
+      console.log(response.data);
+    } catch (err) {
+      console.log(err);
+    }
   };
+
+  async function handleChangeSecond(e: React.ChangeEvent<HTMLInputElement>) {
+    SetDetails({
+      ...details,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  async function handleSubmitSecond(e: React.FormEvent) {
+    e.preventDefault();
+
+    console.log("Updated user:", details);
+    try {
+      const response = await axios.patch("http://localhost:3001/user/update", details, {
+        withCredentials: true,
+      })
+      console.log(response.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   const deleteAccount = async () => {
     try {
       const response = await axios.delete("http://localhost:3001/user/deleteprofile", {
-        withCredentials:true
+        withCredentials: true
       });
       console.log(response.data);
 
-      if(response.status == 200) {
+      if (response.status == 200) {
         await signOut({
-          callbackUrl:"/"
+          callbackUrl: "/"
         });
       }
 
-    } catch(error:any) {
-        console.error('Delete failed:', error.response?.data || error.message);
+    } catch (error: any) {
+      console.error('Delete failed:', error.response?.data || error.message);
     }
   }
+
+
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText("barnesbucky933@gmail.com");
+
+    setCopied(true);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
 
   return (
     <main className="min-h-screen bg-black px-4 py-8 text-white">
@@ -98,7 +145,7 @@ export default function UserSettings() {
                 <div className="relative">
 
                   <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-xl font-semibold text-black">
-                    JD
+                    <img src={(session?.user?.image)?.toString()} alt="img" />
                   </div>
 
                   <button
@@ -122,42 +169,85 @@ export default function UserSettings() {
 
               </div>
 
-              <form
-                onSubmit={handleSubmit}
-                className="space-y-6"
-              >
+              <form onSubmit={handleSubmitSecond} className="space-y-6">
 
                 {/* Name + Email */}
                 <div className="grid gap-5 md:grid-cols-2">
 
-                  <Input
+                  <InputSecond
                     label="Full Name"
                     name="name"
-                    value={form.name}
-                    onChange={handleChange}
+                    value={details.name}
+                    onChange={handleChangeSecond}
                     icon={<User size={16} />}
                   />
 
-                  <Input
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    icon={<Mail size={16} />}
+                  {/* Email */}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-zinc-300">
+                      Email
+                    </label>
+
+                    <div className="flex h-11 items-center gap-2 rounded-lg border border-zinc-800 bg-black p-1">
+                      <Mail
+                        size={16}
+                        className="ml-2 shrink-0 text-zinc-600"
+                      />
+
+                      <span className="min-w-0 flex-1 truncate px-2 text-sm text-zinc-300">
+                        {session?.user?.email}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={handleCopy}
+                        className="h-9 shrink-0 rounded-md bg-green-500 px-4 text-sm font-medium text-black transition hover:bg-green-400 active:scale-[0.98]"
+                      >
+                        {copied ? "Copied" : "Copy"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Phone */}
+                  <InputSecond
+                    label="Phone Number"
+                    name="phone"
+                    type="tel"
+                    value={details.phone}
+                    onChange={handleChangeSecond}
+                    icon={<Phone size={16} />}
+                  />
+
+                  {/* Bio */}
+                  <InputSecond
+                    label="Bio"
+                    name="bio"
+                    type="text"
+                    value={details.bio}
+                    onChange={handleChangeSecond}
+                    icon={<FileText size={16} />}
                   />
 
                 </div>
 
-                {/* Phone */}
-                <Input
-                  label="Phone Number"
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  icon={<Phone size={16} />}
-                />
+                {/* Save */}
+                <div className="flex justify-end border-t border-zinc-800 pt-6">
+                  <button
+                    type="submit"
+                    className="flex h-11 items-center gap-2 rounded-lg border border-green-500 bg-green-500 px-5 text-sm font-medium text-black transition hover:bg-green-400 active:scale-[0.98]"
+                  >
+                    <Save size={16} />
+                    Save Changes
+                  </button>
+                </div>
 
+              </form>
+
+
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-6"
+              >
                 {/* Address */}
                 <div>
                   <label className="mb-2 block text-sm font-medium text-zinc-300">
@@ -172,10 +262,10 @@ export default function UserSettings() {
                     />
 
                     <input
-                      name="address"
-                      value={form.address}
+                      name="street"
+                      value={form.street}
                       onChange={handleChange}
-                      placeholder="Enter your address"
+                      placeholder="Enter your street address"
                       className="w-full rounded-lg border border-zinc-800 bg-black py-3 pl-10 pr-4 text-sm text-white outline-none placeholder:text-zinc-700 transition focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700"
                     />
 
@@ -206,20 +296,25 @@ export default function UserSettings() {
                     onChange={handleChange}
                   />
 
+                  <Input
+                    label="Zip code"
+                    name="ZipCode"
+                    value={form.zipCode}
+                    onChange={handleChange}
+                  />
+
                 </div>
 
                 {/* Save */}
                 <div className="flex justify-end border-t border-zinc-800 pt-6">
-
                   <button
                     type="submit"
-                    className="flex items-center gap-2 rounded-lg bg-white px-5 py-2.5 text-sm font-medium text-green-500 border-2 border-green-500 transition hover:bg-zinc-200"
+                    className="flex h-11 items-center gap-2 rounded-lg border border-green-500 bg-green-500 px-5 text-sm font-medium text-black transition hover:bg-green-400 active:scale-[0.98]"
                   >
                     <Save size={16} />
                     Save Changes
                   </button>
-
-                </div>  
+                </div>
 
               </form>
             </div>
@@ -334,9 +429,55 @@ function Input({
           name={name}
           value={value}
           onChange={onChange}
-          className={`w-full rounded-lg border border-zinc-800 bg-black py-3 pr-4 text-sm text-white outline-none placeholder:text-zinc-700 transition focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 ${
-            icon ? "pl-10" : "px-4"
-          }`}
+          className={`w-full rounded-lg border border-zinc-800 bg-black py-3 pr-4 text-sm text-white outline-none placeholder:text-zinc-700 transition focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 ${icon ? "pl-10" : "px-4"
+            }`}
+        />
+
+      </div>
+
+    </div>
+  );
+}
+
+
+//for name email and phone number
+function InputSecond({
+  label,
+  name,
+  value,
+  onChange,
+  type = "text",
+  icon,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+  icon?: React.ReactNode;
+}) {
+  return (
+    <div>
+
+      <label className="mb-2 block text-sm font-medium text-zinc-300">
+        {label}
+      </label>
+
+      <div className="relative">
+
+        {icon && (
+          <span className="absolute left-3 top-3.5 text-zinc-600">
+            {icon}
+          </span>
+        )}
+
+        <input
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          className={`w-full rounded-lg border border-zinc-800 bg-black py-3 pr-4 text-sm text-white outline-none placeholder:text-zinc-700 transition focus:border-zinc-600 focus:ring-1 focus:ring-zinc-700 ${icon ? "pl-10" : "px-4"
+            }`}
         />
 
       </div>

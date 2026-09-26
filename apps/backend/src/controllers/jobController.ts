@@ -12,17 +12,20 @@ export const createJobs = async (req: Request, res: Response) => {
     }
 
     const id:string = req.user?.id as string;
-    const { title, description, budget , bids} =  req.body;  
+    const { title, description, budgetMin,budgetMax ,bids, deadline,biddingEndsAt } =  req.body;  
 
-    console.log(title, description, budget)
+    console.log(title, description, budgetMin, budgetMax )
     
     try {
         const response = await db.job.create({
             data: {
-                title,
-                description,
-                budget,
+                title: title as string,
+                description: description as string,
+                budgetMin: budgetMin, 
+                budgetMax: budgetMax,
                 bids,
+                deadline:deadline,
+                biddingEndsAt:biddingEndsAt,
                 client:{
                     connect:{id:id}
                 },
