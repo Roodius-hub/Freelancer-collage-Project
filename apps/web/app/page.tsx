@@ -24,7 +24,7 @@ export default function Home() {
   return (
     <div>
       <Navbar/>
-      <div className="pt-10">
+      <div className="pt-10 max-w-6xl mx-auto px-6">
           <Joblist   />
       </div>
     </div>

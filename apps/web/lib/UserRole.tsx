@@ -22,7 +22,7 @@ export const UserRole = () => {
                     document.cookie = `role=${selectedRole}; path=/`;
 
                 }}
-                className="text-gray-300 hover:cursor-pointer text-sm hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] transition"><FaUserCircle />Client</button>
+                className="text-gray-300 hover:cursor-pointer hover:border-green-700 text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] transition"><FaUserCircle />Client</button>
             </div>
 
             <div className="">
@@ -31,7 +31,7 @@ export const UserRole = () => {
                     // setRole(selectedRole as any);
                     document.cookie = `role=${selectedRole}; path=/`;
                 }}
-                className="text-gray-300 hover:cursor-pointer text-sm hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] transition"><TiCode /> Freelancer </button>
+                className="text-gray-300 hover:border-green-700 hover:cursor-pointer text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] transition"><TiCode /> Freelancer </button>
             </div>
         </div>
         </>

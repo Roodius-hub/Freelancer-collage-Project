@@ -12,7 +12,7 @@ export const createJobs = async (req: Request, res: Response) => {
     }
 
     const id:string = req.user?.id as string;
-    const { title, description, budgetMin,budgetMax ,bids, deadline,biddingEndsAt } =  req.body;  
+    const { title, description, budgetMin,budgetMax , deadline,biddingEndsAt } =  req.body;  
 
     console.log(title, description, budgetMin, budgetMax )
     
@@ -21,14 +21,11 @@ export const createJobs = async (req: Request, res: Response) => {
             data: {
                 title: title as string,
                 description: description as string,
-                budgetMin: budgetMin, 
-                budgetMax: budgetMax,
-                bids,
-                deadline:deadline,
-                biddingEndsAt:biddingEndsAt,
-                client:{
-                    connect:{id:id}
-                },
+                budgetMin: parseFloat(budgetMin), 
+                budgetMax: parseFloat(budgetMax),
+                deadline:new Date(deadline),
+                biddingEndsAt:new Date(biddingEndsAt),
+                clientId:id
             },
         })
 
@@ -115,13 +112,13 @@ export const deleteJob = async (req:Request, res:Response) => {
 
 export  const getJobs= async (req:Request, res: Response) => {
     try {
-        const posts = await db.job.findMany({
+        const jobs = await db.job.findMany({
             orderBy:{
                 createdAt:'desc'
             }
         });
-        console.log(posts)
-        return res.status(200).json(posts)
+        console.log(jobs)
+        return res.status(200).json({jobs})
     } catch (error) {
         console.log(error);
 

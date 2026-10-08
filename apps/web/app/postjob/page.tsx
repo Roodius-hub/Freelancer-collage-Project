@@ -1,8 +1,11 @@
 "use client";
 
+import axios from "axios";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function PostJob() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -24,16 +27,29 @@ export default function PostJob() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     console.log(formData);
 
-    // Send formData to your backend here
+    try {
+       const response  = await axios.post("http://localhost:3001/jobs/create", formData ,{
+        withCredentials: true
+       })
+
+       console.log(response.data);
+       
+       if (response.status == 200) {
+          router.push("/")
+       } 
+    } catch (err) {
+      console.log(err);
+    }
+
   };
 
   return (
-    <div className="min-h-screen bg-black px-6 py-10 text-white">
+    <div className="min-h-screen bg-black px-6 py-10 text-white ">
       <div className="mx-auto max-w-2xl">
 
         {/* Header */}
@@ -84,7 +100,7 @@ export default function PostJob() {
 
             <div className="grid grid-cols-2 gap-4">
               <Input
-                label="Minimum"
+                label="Minimum (INR)"
                 name="budgetMin"
                 type="number"
                 value={formData.budgetMin}
@@ -92,7 +108,7 @@ export default function PostJob() {
               />
 
               <Input
-                label="Maximum"
+                label="Maximum (INR)"
                 name="budgetMax"
                 type="number"
                 value={formData.budgetMax}
@@ -103,7 +119,7 @@ export default function PostJob() {
 
           {/* Number of bids */}
           <Input
-            label="Maximum Bids"
+            label="Maximum Bids (Enter Numbers of max bids)"
             name="bids"
             type="number"
             value={formData.bids}
@@ -115,7 +131,7 @@ export default function PostJob() {
 
             <div>
               <label className="mb-2 block text-sm font-medium text-zinc-300">
-                Deadline
+                Deadline & Time
               </label>
 
               <input
@@ -129,7 +145,7 @@ export default function PostJob() {
 
             <div>
               <label className="mb-2 block text-sm font-medium text-zinc-300">
-                Bidding Ends At
+                Bidding Ends At & Time
               </label>
 
               <input
@@ -187,7 +203,6 @@ function Input({
             {icon}
           </span>
         )}
-
         <input
           type={type}
           name={name}

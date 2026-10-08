@@ -22,9 +22,11 @@ export function Navbar() {
         <div className="flex items-center gap-4">
 
           {/* Nav Links */}
-          <a className="text-gray-300 hover:cursor-pointer text-sm hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] transition">Home</a>
-          <a className="text-gray-300 hover:cursor-pointer text-sm hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] transition" >Jobs</a>
-          <a className="text-gray-300 hover:cursor-pointer text-sm hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] transition" onClick={() => router.push("/postjob")}>Post Job</a>
+          <a className="text-gray-300 hover:cursor-pointer text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] hover:border-purple-500 transition">Home</a>
+          <a className="text-gray-300 hover:cursor-pointer text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] hover:border-purple-500 transition" >Jobs</a>
+          <a className="text-gray-300 hover:cursor-pointer text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] hover:border-purple-500 transition" onClick={() => setTimeout(() => {
+            router.push("/postjob")
+          }, 1000)}>Post Job</a>
 
           {/* Wallet Button (fixed dark style) */}
           {/* <button className="text-sm flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] transition hover:cursor-pointer">
