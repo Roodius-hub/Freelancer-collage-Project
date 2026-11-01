@@ -24,8 +24,8 @@ export default function Joblist() {
     },[])
       
     return (    
-        <div className="px-10 py-10 max-w-7xl mx-auto overflow-visible">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="mx-auto w-full max-w-6xl px-6 py-10">
+  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {jobs.map((job: any) => (
             <JobCard key={job.id} {...job} />
           ))}

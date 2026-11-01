@@ -176,6 +176,32 @@ export const  jobStatus = async (req: Request, res: Response) => {
         console.log(error) 
         return res.status(500).json({message: "Error while updating"})
     }
-
-
 }
+
+
+export const getJobById = async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    console.log("Fetching job ID:", id);
+
+    const job = await db.job.findUnique({
+      where: { id:id as string }
+    });
+
+    if (!job) {
+      return res.status(404).json({
+        message: "Job not found"
+      });
+    }
+
+    return res.status(200).json({ job });
+
+  } catch (err) {
+    console.error("Get job error:", err);
+
+    return res.status(500).json({
+      message: "Internal Server Error"
+    });
+  }
+};
