@@ -6,7 +6,7 @@ import { checkRole } from "../middlewares/role";
 const router = express.Router();
 
 // post jobs
-router.post("/create", checkUserExisi,checkRole('CLIENT') , createJobs);
+router.post("/create", checkUserExisi, checkRole('CLIENT') , createJobs);
 
 // update jobs
 router.patch("/update/:id", checkUserExisi, checkRole('CLIENT'), updateJob);

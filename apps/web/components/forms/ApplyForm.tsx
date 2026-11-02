@@ -45,7 +45,7 @@ export default function Applyform({
   const [proposal, setProposal] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
+  console.log(bid,deliveryDays,proposal);
   const formatDate = (date: string) => {
     if (!date) return "Not specified";
 
@@ -91,7 +91,7 @@ export default function Applyform({
     try {
       setLoading(true);
 
-      const response = await fetch("http://localhost:3001/bids/create", {
+      const response = await fetch(`http://localhost:3001/bids/jobs/${jobId}/?apply=1/role=freelancer`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -106,12 +106,12 @@ export default function Applyform({
       });
 
       const data = await response.json();
-
+      console.log(data);
       if (!response.ok) {
         throw new Error(data.message || "Failed to submit proposal.");
       }
 
-      router.push("/jobs");
+      router.push("/");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Something went wrong."
