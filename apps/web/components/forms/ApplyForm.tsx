@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useSession } from "next-auth/react";
+
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -45,7 +47,11 @@ export default function Applyform({
   const [proposal, setProposal] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  console.log(bid,deliveryDays,proposal);
+  // console.log(bid,deliveryDays,proposal);
+
+  const {data:session} = useSession();
+  const Userrole = session?.user?.role;
+
   const formatDate = (date: string) => {
     if (!date) return "Not specified";
 
@@ -312,7 +318,15 @@ export default function Applyform({
             </div>
 
             {/* Submit */}
-            <Button
+            <div>
+              {Userrole === "CLIENT" ? <Button
+              disabled={loading}
+              className="h-12 w-full bg-red-500 text-sm font-semibold text-black hover:bg-red-400 disabled:opacity-50"
+            >
+              You are not able to  apply
+              {<ArrowUpRight size={17} />}
+            </Button> : 
+              <Button
               onClick={submitBid}
               disabled={loading}
               className="h-12 w-full bg-emerald-500 text-sm font-semibold text-black hover:bg-emerald-400 disabled:opacity-50"
@@ -320,6 +334,8 @@ export default function Applyform({
               {loading ? "Submitting..." : "Submit proposal"}
               {!loading && <ArrowUpRight size={17} />}
             </Button>
+              }
+            </div>
 
             <p className="mt-4 text-center text-xs text-zinc-600">
               Review your offer before submitting.

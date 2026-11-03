@@ -5,7 +5,7 @@ import Logosvg from "@/public/logo"
 import { useRouter } from "next/navigation"
 import AuthButton from "@/lib/Authbutton"
 import UserMenu from "@/lib/Usermenu"
-import { useSession } from "next-auth/react";
+import { useSession } from "next-auth/react"; 
 
 
 export function Navbar() {

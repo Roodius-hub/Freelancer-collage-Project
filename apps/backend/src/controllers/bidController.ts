@@ -13,9 +13,9 @@ export const placeBid = async (req: Request, res: Response) => {
     console.log(req.body);
     const freeID: string = req.user?.id as string;  // current use who biding 
     const jobid = req.params.jobId as string;      // someone jobid
-    const { amount, message, days } = req.body;  // make it default 
+    const { amount, proposal, deliveryDays } = req.body;  // make it default 
 
-    console.log("bid data: ",amount,message,days);
+    console.log("bid data: ",amount,proposal,deliveryDays);
 
     if (!jobid) {
         return res.status(401).json({
@@ -23,7 +23,7 @@ export const placeBid = async (req: Request, res: Response) => {
         })
     }
 
-    if (amount === '' || message === '' || days === '') {
+    if (amount === '' || proposal === '' || deliveryDays === '') {
         return res.status(401).json({
             message: "Bid and Message Cant be Empty"
         })
@@ -48,15 +48,15 @@ export const placeBid = async (req: Request, res: Response) => {
             }, // Unique condition to find existing record
             update: {
                 amount: parseFloat(amount),
-                deliveryDays: parseInt(days),
-                proposal: message,
+                deliveryDays: parseInt(deliveryDays),
+                proposal: proposal,
             }, // Data to apply if record exists
             create: {
                 freelancerId: freeID,
                 amount: parseFloat(amount),
                 jobId: jobid,
-                deliveryDays: parseInt(days),
-                proposal: message,
+                deliveryDays: parseInt(deliveryDays),
+                proposal: proposal,
             }, // Data to use if record does not exist
         })
         console.log(response, "bid created");
