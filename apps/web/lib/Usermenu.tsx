@@ -56,7 +56,8 @@ export default function   UserMenu() {
             Profile
           </button>
 
-          <button className="w-full text-left px-3 py-2 hover:bg-[#222] rounded">
+          <button className="w-full text-left px-3 py-2 hover:bg-[#222] rounded" 
+            onClick={() => setTimeout(() => {navigate.push("/dashboard")},1000)}>
             Dashboard
           </button>
 

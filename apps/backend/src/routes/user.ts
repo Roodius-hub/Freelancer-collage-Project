@@ -5,7 +5,7 @@ import { checkUserExisi } from "../middlewares/user";
 const router = express.Router();
 
 //get
-router.post("/get", checkUserExisi ,getUser);
+router.get("/get", checkUserExisi ,getUser);
 
 
 //update
