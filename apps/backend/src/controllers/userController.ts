@@ -165,6 +165,42 @@ export const CreateSkill = async (req: Request, res: Response) => {
     }
 }
 
+//get skills data
+export const getUserSkill = async (req:Request, res:Response) => {
+    if (!req.user?.id) {
+        return res.status(401).json({ message: "User not authenticated" });
+    }
+    if (!req.user?.id) {
+        return res.status(404).json()
+    }
+    const userid: string = req.user?.id as string;
+    
+    console.log(userid);
+
+    if (!userid) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    try {
+        const skills = await db.userSkill.findMany({
+            where: {
+                userId:userid,
+            },
+            include: {
+                skill:true,
+            },
+        });
+
+        return res.status(200).json({
+            skills:skills.map((item) => item.skill),
+        })
+    } catch (err) {
+        console.log(err)
+        return res.status(500).json({
+            message: "Internal server error Failed to fetch skills"
+        })
+    }
+}
 
 //delete user 
 export const DeleteAccount = async (req: Request, res: Response) => {

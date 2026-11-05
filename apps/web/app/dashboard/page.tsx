@@ -61,6 +61,7 @@ export default function Dashboard() {
 
     const [skills, setSkills] = useState<string[]>([]);
     const [skillInput, setSkillInput] = useState("");
+    const [getskill, Setgetskill] = useState<string[]>([]);
 
     const [form, setForm] = useState({
         phone: "",
@@ -103,6 +104,25 @@ export default function Dashboard() {
 
         getProfile();
     }, []);
+
+    // fetching skills
+    useEffect(() => {
+        const fetchskill = async () => {
+        try {
+            const response = await axios.get("http://localhost:3001/user/getskills", {
+                withCredentials:true
+            })
+               console.log("Full response:", response.data);
+                console.log("Skills:", response.data.skills);
+            Setgetskill(response.data.skills ?? []);
+
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    fetchskill();
+    }, [])
+    
 
     const handleSave = async () => {
         setSaving(true);
@@ -521,7 +541,9 @@ export default function Dashboard() {
                                 ))
                             ) : (
                                 <p className="text-sm text-zinc-500">
-                                    No skills added yet.
+                                    {getskill.map((skill, i) => (
+                                        <div className="inline-flex items-center gap-2 rounded-lg border border-zinc-800 bg-black px-3 py-2 text-xs text-zinc-300" key={i}>{skill.name}</div>
+                                    ))}
                                 </p>
                             )}
 
