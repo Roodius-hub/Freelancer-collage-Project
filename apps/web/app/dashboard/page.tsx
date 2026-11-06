@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
+// import { UserJobCount } from "@/lib/api"; 
 import { useSession } from "next-auth/react";
 
 
@@ -70,6 +70,8 @@ export default function Dashboard() {
         name: "",
     });
 
+    
+
     useEffect(() => {
         const getProfile = async () => {
             try {
@@ -108,21 +110,21 @@ export default function Dashboard() {
     // fetching skills
     useEffect(() => {
         const fetchskill = async () => {
-        try {
-            const response = await axios.get("http://localhost:3001/user/getskills", {
-                withCredentials:true
-            })
-               console.log("Full response:", response.data);
+            try {
+                const response = await axios.get("http://localhost:3001/user/getskills", {
+                    withCredentials: true
+                })
+                console.log("Full response:", response.data);
                 console.log("Skills:", response.data.skills);
-            Setgetskill(response.data.skills ?? []);
+                Setgetskill(response.data.skills ?? []);
 
-        } catch (err) {
-            console.log(err);
+            } catch (err) {
+                console.log(err);
+            }
         }
-    }
-    fetchskill();
+        fetchskill();
     }, [])
-    
+
 
     const handleSave = async () => {
         setSaving(true);
@@ -148,13 +150,13 @@ export default function Dashboard() {
             );
 
             const response_skill = await axios.post("http://localhost:3001/user/skills", {
-                skills,   
-            },{
-                withCredentials:true
+                skills,
+            }, {
+                withCredentials: true
             })
             const skill_data = response_skill.data;
             const data = await response.json();
-        
+
             if (!response.ok || skill_data.status != 200) {
                 throw new Error(data.message || "Failed to update profile");
             }
@@ -191,7 +193,7 @@ export default function Dashboard() {
     const stats = [
         {
             label: "Jobs",
-            value: user._count?.jobs ?? 0,
+            value: user._count ?? 0,
             icon: BriefcaseBusiness,
         },
         {
