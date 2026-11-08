@@ -39,6 +39,7 @@ export default function Applyform({
   deadline,
   biddingEndsAt,
   status,
+  clientId
 }: ApplyFormProps) {
   const router = useRouter();
 
@@ -48,6 +49,10 @@ export default function Applyform({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   // console.log(bid,deliveryDays,proposal);
+
+    const id = clientId;
+
+  console.log(id);
 
   const {data:session} = useSession();
   const Userrole = session?.user?.role;

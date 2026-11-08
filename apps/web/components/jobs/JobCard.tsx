@@ -16,6 +16,7 @@ type JobCardProps = {
   deadline: string;
   biddingEndsAt: string;
   status?: string;
+  clientId:string;
 };
 
 export default function JobCard(job: JobCardProps) {

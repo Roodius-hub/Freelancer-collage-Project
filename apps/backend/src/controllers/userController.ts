@@ -166,7 +166,7 @@ export const CreateSkill = async (req: Request, res: Response) => {
 }
 
 //get skills data
-export const getUserSkill = async (req:Request, res:Response) => {
+export  const getUserSkill = async (req:Request, res:Response) => {
     if (!req.user?.id) {
         return res.status(401).json({ message: "User not authenticated" });
     }
