@@ -8,12 +8,14 @@ export const getUser = async (req: Request, res: Response) => {
     if (!req.user?.id) {
         return res.status(401).json({ message: "User not authenticated" });
     }
-    const id: string = req.user?.id as string;
+    const userid = req.params.id;
+
+    console.log(userid);
 
     try {
         const user = await db.user.findUnique({
             where: {
-                id: id,
+                id: userid as string,
             },
         });
 
