@@ -10,6 +10,7 @@ import {
   Clock,
   Star,
   BadgeCheck,
+  User,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -113,14 +114,23 @@ function ClientInformation({ client, loading }: {
           <span className="text-zinc-400">{reviewCount}</span>
         </div>
 
-        {/* Member since */}
-        <div className="flex items-center gap-3 text-sm text-zinc-300">
-          <Clock size={17} className="shrink-0 text-zinc-400" />
-          Member since {formatMemberDate(client.createdAt)}
-        </div>
+              <div  className="gap-2">
+                  
+                {/* Member since */}
+                <div className="flex items-center gap-3 text-sm text-zinc-300">
+                  <Clock size={17} className="shrink-0 text-zinc-400" />
+                  Member since {formatMemberDate(client.createdAt)}
+                      </div>
+              </div>
+        
+              
+              <div className="flex items-center gap-3 text-sm text-zinc-300">
+                <User size={17} className="shrink-0 text-zinc-400" />
+                Name [ {client.name}  ]
+              </div>
+              </div>
 
-      </div>
-
+          
       {/* Client engagement */}
       <div className="mt-8 border-t border-white/[0.07] pt-6">
         <h3 className="text-sm font-semibold text-white">
