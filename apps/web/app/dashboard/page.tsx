@@ -2,9 +2,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import { UserJobCount } from "@/lib/api"; 
-// import { useSession } from "next-auth/react";
-
 
 import {
     UserRound,
@@ -62,7 +59,9 @@ export default function Dashboard() {
     const [skills, setSkills] = useState<string[]>([]);
     const [skillInput, setSkillInput] = useState("");
     const [getskill, Setgetskill] = useState<string[]>([]);
-
+    const [verify, SetVerifiy] = useState<boolean>(false);
+    const [otp, SetOtp] = useState<string>("");
+    
     const [form, setForm] = useState({
         phone: "",
         bio: "",
@@ -76,7 +75,7 @@ export default function Dashboard() {
         const getProfile = async () => {
             try {
                 const response = await fetch(
-                    "http://localhost:3001/user/get",
+                    `http://localhost:3001/user/get/${user?.id}`,
                     { credentials: "include" }
                 );
 
@@ -274,9 +273,20 @@ export default function Dashboard() {
                             <h2 className="text-xl font-semibold">
                                 {user.name || "Unnamed user"}
                             </h2>
-                            <p className="mt-1 text-sm text-zinc-400">
-                                {user.email}
-                            </p>
+                            <div className="flex  gap-2 align-center">
+                              <p className="mt-1 text-sm text-zinc-400">
+                                  {user.email}
+                                </p>
+                                { !verify ? 
+                                    <button onClick={() => SetVerifiy(true)} className="flex items-center gap-2 rounded-lg border border-zinc-700 px-2 py-1 text-sm transition hover:border-emerald-500 hover:text-emerald-400">verify</button> : <div className="items-center flex gap-2">
+                                      <input onChange={(e) => SetOtp(e.target.value)}
+                                        type="text"
+                                       maxlength="6"                                        
+                                       class="w-20 h-7 font-semibold outline-none text-xl text-gray-700 text-center border rounded-md transition-all bg-gray-100 border-gray-300 focus:border-blue-500"
+                                     /> <button className=" gap-2 rounded-lg border border-zinc-700 px-2 py-1 text-sm transition hover:border-purple-500 hover:text-purple-400">Send OTP</button>
+                                      </div> }
+                            </div>
+                            
                             <span className="mt-3 inline-flex rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
                                 {user.role}
                             </span>
