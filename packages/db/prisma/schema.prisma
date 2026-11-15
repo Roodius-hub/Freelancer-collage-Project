@@ -1,4 +1,4 @@
-// This is your Prisma schema file,
+ // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 // Get a free hosted Postgres database in seconds: `npx create-db`
@@ -26,7 +26,12 @@ model User {
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
+  // Email verification
+   emailVerifiedAt   DateTime?
+ 
+   // Phone verification
+   phoneVerifiedAt  DateTime?
+  
   // relations
   address      Address?
   userSkill    UserSkill[]
@@ -38,6 +43,10 @@ model User {
   sentMessages Message[] @relation("SenderMessages")
 
   reviews      Review[] @relation("FreelancerReviews")
+
+  emailverification   EmailVerification[] @relation("UserEmailVerification")
+  phoneVerifications  PhoneVerification[] @relation("UserPhoneVerification")
+  
 }
 
 model Skill {
@@ -191,6 +200,36 @@ model Review {
   job            Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@unique([jobId, freelancerId])
+}
+
+model EmailVerification {
+  id        String   @id @default(cuid())
+  userId    String
+  email     String
+  otpHash   String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user      User @relation("UserEmailVerification", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, email])
+  @@index([expiresAt])
+}
+
+model PhoneVerification {
+  id        String   @id @default(cuid())
+  userId    String
+  phone     String
+  otpHash   String
+  expiresAt DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user User @relation("UserPhoneVerification",fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, phone])
+  @@index([expiresAt])
 }
 
 enum JobStatus {

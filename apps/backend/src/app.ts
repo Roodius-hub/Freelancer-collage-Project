@@ -5,6 +5,8 @@ import type { Request, Response } from "express";
 import  userRouter  from "./routes/user"
 import jobsRouter from "./routes/job";
 import bidRouter from "./routes/bid";
+import resendRouter from "./routes/verification";
+
 export const app = express();
 
 app.use(express.json());
@@ -17,6 +19,7 @@ app.use(cookieParser());
 app.use("/user", userRouter);
 app.use("/jobs", jobsRouter);
 app.use("/bids",bidRouter);
+app.use("/verify-user", resendRouter);
 
 app.get("/", (req:Request, res:Response) => {
     return res.status(200).json({

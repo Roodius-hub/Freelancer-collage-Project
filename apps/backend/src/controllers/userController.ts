@@ -8,7 +8,7 @@ export const getUser = async (req: Request, res: Response) => {
     if (!req.user?.id) {
         return res.status(401).json({ message: "User not authenticated" });
     }
-    const userid = req.params.id;
+    const userid = req.user?.id;
 
     console.log(userid);
 

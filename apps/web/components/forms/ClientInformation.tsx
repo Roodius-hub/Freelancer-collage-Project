@@ -12,7 +12,7 @@ import {
   BadgeCheck,
   User,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
 
 function ClientInformation({ client, loading }: {
   client: any;

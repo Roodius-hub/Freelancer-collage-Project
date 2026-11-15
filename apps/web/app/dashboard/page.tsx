@@ -15,6 +15,7 @@ import {
     X,
 } from "lucide-react";
 import axios from "axios";
+import EmailVerification from "@/components/shared/EmailVerification";
 
 type DashboardUser = {
     id: string;
@@ -26,7 +27,7 @@ type DashboardUser = {
     hourlyRate: number | null;
     role: "CLIENT" | "FREELANCER";
     createdAt: string;
-
+    emailVerifiedAt: string | null;
     address?: {
         city?: string;
         state?: string;
@@ -49,6 +50,12 @@ type DashboardUser = {
     };
 };
 
+type Skill = {
+  id: string;
+  name: string;
+};
+
+
 export default function Dashboard() {
     const [user, setUser] = useState<DashboardUser | null>(null);
     const [loading, setLoading] = useState(true);
@@ -58,9 +65,9 @@ export default function Dashboard() {
 
     const [skills, setSkills] = useState<string[]>([]);
     const [skillInput, setSkillInput] = useState("");
-    const [getskill, Setgetskill] = useState<string[]>([]);
+    const [getskill, Setgetskill] = useState<Skill[]>([]);
     const [verify, SetVerifiy] = useState<boolean>(false);
-    const [otp, SetOtp] = useState<string>("");
+    
     
     const [form, setForm] = useState({
         phone: "",
@@ -75,14 +82,14 @@ export default function Dashboard() {
         const getProfile = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:3001/user/get/${user?.id}`,
+                    `http://localhost:3001/user/get`,
                     { credentials: "include" }
                 );
 
                 if (!response.ok) {
                     throw new Error("Unable to fetch profile");
                 }
-
+                console.log(response);
                 const data = await response.json();
                 const profile = data.user;
 
@@ -192,7 +199,7 @@ export default function Dashboard() {
     const stats = [
         {
             label: "Jobs",
-            value: user._count ?? 0,
+            value: user._count?.jobs ?? 0,
             icon: BriefcaseBusiness,
         },
         {
@@ -277,14 +284,13 @@ export default function Dashboard() {
                               <p className="mt-1 text-sm text-zinc-400">
                                   {user.email}
                                 </p>
-                                { !verify ? 
-                                    <button onClick={() => SetVerifiy(true)} className="flex items-center gap-2 rounded-lg border border-zinc-700 px-2 py-1 text-sm transition hover:border-emerald-500 hover:text-emerald-400">verify</button> : <div className="items-center flex gap-2">
-                                      <input onChange={(e) => SetOtp(e.target.value)}
-                                        type="text"
-                                       maxlength="6"                                        
-                                       class="w-20 h-7 font-semibold outline-none text-xl text-gray-700 text-center border rounded-md transition-all bg-gray-100 border-gray-300 focus:border-blue-500"
-                                     /> <button className=" gap-2 rounded-lg border border-zinc-700 px-2 py-1 text-sm transition hover:border-purple-500 hover:text-purple-400">Send OTP</button>
-                                      </div> }
+                                {user.emailVerifiedAt ? (
+                                  <span className="inline-flex items-center gap-1 text-sm text-green-400">
+                                    ✓ Email verified
+                                  </span>
+                                ) : (
+                                  <EmailVerification />
+                                )}
                             </div>
                             
                             <span className="mt-3 inline-flex rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-400">
@@ -553,9 +559,20 @@ export default function Dashboard() {
                                 ))
                             ) : (
                                 <p className="text-sm text-zinc-500">
-                                    {getskill.map((skill, i) => (
-                                        <div className="inline-flex items-center gap-2 rounded-lg border border-zinc-800 bg-black px-3 py-2 text-xs text-zinc-300" key={i}>{skill.name}</div>
-                                    ))}
+                                  {getskill.length > 0 ? (
+                                      getskill.map((skill) => (
+                                        <span
+                                          key={skill.id}
+                                          className="inline-flex items-center gap-2 rounded-lg border border-zinc-800 bg-black px-3 py-2 text-xs text-zinc-300"
+                                        >
+                                          {skill.name}
+                                        </span>
+                                      ))
+                                    ) : (
+                                      <p className="text-sm text-zinc-500">
+                                        No skills added yet.
+                                      </p>
+                                    )}
                                 </p>
                             )}
 

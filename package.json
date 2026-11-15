@@ -7,7 +7,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "start":  "cd ./apps/web && npm run start",
+    "start": "cd ./apps/web && npm run start",
     "db:generate": "cd packages/db && npx prisma generate && cd ../.."
   },
   "devDependencies": {
@@ -22,5 +22,8 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "nodemon": "^3.1.14"
+  }
 }
