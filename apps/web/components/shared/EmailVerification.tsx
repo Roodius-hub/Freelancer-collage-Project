@@ -133,7 +133,7 @@ export default function EmailVerification() {
       setResending(true);
       setMessage("");
 
-      const response = await fetch(`${API_URL}/verification/email/send`, {
+      const response = await fetch(`http://localhost:3001/verify-user/email-verify`, {
         method: "POST",
         credentials: "include",
       });

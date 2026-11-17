@@ -19,7 +19,7 @@ function ClientInformation({ client, loading }: {
   loading: boolean;
 }) {
 
-    console.log(client);
+    // console.log(client.emailVerifiedAt);
   const formatMemberDate = (date?: string) => {
     if (!date) return "Not available";
 
@@ -126,9 +126,19 @@ function ClientInformation({ client, loading }: {
               
               <div className="flex items-center gap-3 text-sm text-zinc-300">
                 <User size={17} className="shrink-0 text-zinc-400" />
-                Name [ {client.name}  ]
+                {client.name} 
               </div>
+              
+              <div className="flex items-center gap-3 text-sm text-zinc-300">
+                <Mail size={17} className="shrink-0 text-zinc-400" />
+                {client.emailVerifiedAt ? "Email Verified": "Email Not Verified"} 
               </div>
+
+              <div className="flex items-center gap-3 text-sm text-zinc-300">
+                <Phone size={17} className="shrink-0 text-zinc-400" />
+                {client.phoneVerifiedAt ? "Phone Verified": "Phone Not Verified"} 
+              </div>
+          </div>
 
           
       {/* Client engagement */}

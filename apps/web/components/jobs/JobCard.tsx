@@ -28,7 +28,7 @@ export default function JobCard(job: JobCardProps) {
   
     const Userrole = session?.user?.role;
     console.log(Userrole)
-
+    
   const formatDate = (date: string) => {
     if (!date) return "Not specified";
 

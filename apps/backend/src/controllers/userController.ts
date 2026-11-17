@@ -29,6 +29,32 @@ export const getUser = async (req: Request, res: Response) => {
     }
 }
 
+// getting user
+export const getUserBypost = async (req: Request, res: Response) => {
+    if (!req.user?.id) {
+        return res.status(401).json({ message: "User not authenticated" });
+    }
+    const userid = req.params.id;
+
+    console.log(userid);
+
+    try {
+        const user = await db.user.findUnique({
+            where: {
+                id: userid as string,
+            },
+        });
+
+
+        return res.status(200).json({ "user": user });
+
+
+    } catch (error) {
+        console.log("error", error);
+        return res.status(500).json({ "error": error })
+    }
+}
+
 // update user 
 export const updateUser = async (req: Request, res: Response) => {
     if (!req.user?.id) {
@@ -71,14 +97,14 @@ export const UserAddress = async (req: Request, res: Response) => {
         return res.status(401).json({ message: "User not authenticated" });
     }
     console.log("request Reached for adddress  updation");
-    const id: string = req.user?.id as string;
+    const Userid: string = req.user?.id as string;
     const { city, state, country, zipCode, street } = req.body;
-    console.log(id);
+    console.log(Userid);
     try {
         console.log("inside try  catch")
         const address = await db.address.upsert({
             where: {
-                id: id
+                userId: Userid
             },
             update: {
                 city: city,
@@ -93,7 +119,7 @@ export const UserAddress = async (req: Request, res: Response) => {
                 country: country,
                 zipCode: zipCode,
                 street: street,
-                userId: id
+                userId: Userid
             },
         });
         // console.log(address);
@@ -111,6 +137,25 @@ export const UserAddress = async (req: Request, res: Response) => {
 
 }
 
+export const getAddress = async (req: Request, res: Response) => {
+    const id: string = req.user?.id as string;
+    try {
+        const address = await db.address.findUnique({
+            where: {
+                userId: id
+            }
+        });
+
+        return res.status(200).json({
+            address
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            error: "Internal Server Error",
+        });
+      }
+}
 
 // create skills 
 export const CreateSkill = async (req: Request, res: Response) => {
