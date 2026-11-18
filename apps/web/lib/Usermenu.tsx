@@ -52,18 +52,18 @@ export default function   UserMenu() {
       {/* Dropdown */}
       {open && (
         <div className="absolute right-0 mt-2 w-40 bg-[#111] border border-[#2a2a2a] rounded-lg shadow-lg p-2">
-          <button onClick={() => setTimeout(() => {navigate.push("/profile")}, 1000)} className="w-full text-left px-3 py-2 hover:bg-[#222] rounded">
+          {/*<button onClick={() => setTimeout(() => {navigate.push("/profile")}, 1000)} className="w-full text-left px-3 py-2 hover:bg-[#222] rounded">
             Profile
-          </button>
+          </button>*/}
 
-          <button className="w-full text-left px-3 py-2 hover:bg-[#222] rounded" 
+          <button className="w-full text-left px-3 py-2 hover:bg-[#222] rounded  hover:bg-[#6366F1] transition" 
             onClick={() => setTimeout(() => {navigate.push("/dashboard")},1000)}>
             Dashboard
           </button>
 
           <button
             onClick={() => signOut()}
-            className="w-full text-left px-3 py-2 hover:bg-[#222] rounded text-red-400"
+            className="w-full text-left px-3 py-2 hover:bg-[#222] rounded text-red-800 hover:text-black  hover:bg-[#6366F1] transition"
           >
             Logout
           </button>

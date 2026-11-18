@@ -1,7 +1,7 @@
 import express from "express";
 import { checkUserExisi } from "../middlewares/user";
 import { checkRole } from "../middlewares/role";
-import { placeBid } from "../controllers/bidController";
+import { getBids, getSpeceficBids, placeBid } from "../controllers/bidController";
 
 const router = express.Router();
 
@@ -9,6 +9,12 @@ const router = express.Router();
 //place bid // freelancerId
 router.post("/jobs/:jobId", checkRole('FREELANCER'),checkUserExisi, placeBid);
 
+// get bids for notifications 
+router.get("/notifications-bids", checkRole('CLIENT'), checkUserExisi, getBids);
+
+
+// get  specefic bid now 
+router.get("/get-bids/:bidId", checkRole('CLIENT'), checkUserExisi, getSpeceficBids);
 
 //Only client should see all bids
 // router.get("jobs/:jobId/bids")

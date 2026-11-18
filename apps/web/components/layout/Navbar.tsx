@@ -7,6 +7,9 @@ import AuthButton from "@/lib/Authbutton"
 import UserMenu from "@/lib/Usermenu"
 import { useSession } from "next-auth/react"; 
 
+import { Bell, Briefcase ,HomeIcon, Upload  } from "lucide-react";
+import { NotificationButton } from "../notifications/NotificationButton"
+
 
 export function Navbar() {
   const router = useRouter()
@@ -32,15 +35,17 @@ export function Navbar() {
           {/* Nav Links */}
           <div>
              {Userrole === "CLIENT" && (
-           <a className="text-gray-300 hover:cursor-pointer text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] hover:border-purple-500 transition" onClick={() => setTimeout(() => {
+           <a className="text-gray-300 hover:cursor-pointer text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#6366F1] transition" onClick={() => setTimeout(() => {
             router.push("/postjob")
-          }, 1000)}>Post Job</a>
+          }, 1000)}><Upload className="size-4"/>Post Job</a>
       )}
           </div>
-          <a className="text-gray-300 hover:cursor-pointer text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] hover:border-purple-500 transition">Home</a>
-          <a className="text-gray-300 hover:cursor-pointer text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] hover:border-purple-500 transition" >Jobs</a>
-       
-
+          <a className="text-gray-300 hover:cursor-pointer text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#6366F1]  transition"><HomeIcon className="size-4"/>Home</a>
+          <a className="text-gray-300 hover:cursor-pointer text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#6366F1]  transition" ><Briefcase className="size-4"/>Jobs</a>
+          {/*<a className="text-gray-300 hover:cursor-pointer text-[11px] hover:text-white flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#6366F1]  transition" onClick={() => setTimeout(() => {
+           router.push("/notification")
+         }, 1000)}><Bell className="size-4"/>Notification</a>*/}
+          <NotificationButton />
           {/* Wallet Button (fixed dark style) */}
           {/* <button className="text-sm flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-white hover:bg-[#222] transition hover:cursor-pointer">
             <FaWallet />

@@ -71,3 +71,92 @@ export const placeBid = async (req: Request, res: Response) => {
         })
     }
 }
+
+//get bids by id 
+export const getBids = async (req: Request, res: Response) => {
+    const currentUserId = req.user?.id; 
+    
+    if (!currentUserId) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+    try {
+      const notifications = await db.bid.findMany({
+        where: {
+          job: {
+            clientId: currentUserId,
+          },
+        },
+        include: {
+          job: {
+            select: {
+              id: true,
+              title: true,
+              clientId: true,
+            },
+          },
+          freelancer: {
+            select: {
+              id: true,
+              name: true,
+              picture: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 5,
+      });
+        console.log(notifications);
+        return res.status(200).json({
+            notifications
+        })
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+              message:"Internal Server Error"
+          })
+    } 
+}
+
+
+export const getSpeceficBids = async (req: Request, res: Response) => {
+    const currentUserId = req.user?.id; 
+    const { bidId } = req.params;
+    console.log("REQUESTED bidID BACKEND", bidId);
+    if (!currentUserId) {
+      return res.status(401).json({
+        message: "Unauthorized",  
+      });
+    }
+    
+    try {
+        console.log("INSIDE TRY CATCH")
+      const biding = await db.bid.findUnique({
+          where: {
+              id: bidId as string,
+          job: {
+            clientId: currentUserId,
+          },
+        },
+        include: {
+            job: true,
+            freelancer:true,
+          },
+        });
+      if (!biding) {
+            return res.status(404).json({
+              message: "Bid not found",
+            });
+          }
+      
+          return res.status(200).json({ biding });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({
+              message:"Internal Server Error"
+          })
+    } 
+}

@@ -50,7 +50,8 @@ export default function JobCard(job: JobCardProps) {
   onClick={() => {
     if (isOpen) router.push(`/apply/${job.id}`);
   }}
-  className={`group relative h-[210px] cursor-pointer  overflow-hidden rounded-2xl !border-0 !ring-0 bg-[#101012] text-white shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:!border-0 hover:!ring-0 hover:bg-[#151517] hover:shadow-[0_12px_35px_rgba(0,0,0,0.4)] ${
+  className={`group relative h-[210px] cursor-pointer  overflow-hidden rounded-2xl border border-transparent 
+    hover:border-[#6366F1] transition !ring-0 bg-[#101012] text-white shadow-sm transition-all  ease-out hover:-translate-y-1  hover:!ring-0 hover:bg-[#151517] hover:shadow-[0_12px_35px_rgba(0,0,0,0.4)] ${
     !isOpen ? "cursor-not-allowed opacity-60" : ""
   }`}
 >
