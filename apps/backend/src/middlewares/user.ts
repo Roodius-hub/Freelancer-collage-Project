@@ -30,6 +30,8 @@ export const    checkUserExisi = async (req:Request,res:Response,next:NextFuncti
 
         req.user = {
             id: token.uid as string,
+            email: token.email,
+             role: token.role,
         };
 
         next();

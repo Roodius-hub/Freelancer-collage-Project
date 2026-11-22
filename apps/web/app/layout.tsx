@@ -4,7 +4,7 @@ import "./globals.css";
 import { Figtree } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Providers } from "@/app/Provider";
-
+import { Toaster } from "sonner";
 
 const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
 
@@ -41,8 +41,15 @@ export default function RootLayout({
         </head>
       <body className={`${brassMono.variable} ${geistMono.variable} bg-[black] text-white maxw-7xl`}>
         <Providers>
-              {children}
-        </Providers>
+                  {children}
+                  <Toaster
+                            position="top-right"
+                            richColors
+                            closeButton
+                            duration={3000}
+                          />
+              </Providers>
+              
       </body>
     </html>
   );

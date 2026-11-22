@@ -43,7 +43,36 @@ export default function JobCard(job: JobCardProps) {
     });
   };
 
-  const isOpen = (job.status ?? "OPEN").toUpperCase() === "OPEN";
+  const jobStatus = (job.status ?? "OPEN").toUpperCase();
+  
+  const isOpen = jobStatus === "OPEN";
+  
+  const statusConfig = {
+    OPEN: {
+      label: "Open",
+      color: "bg-emerald-400",
+      text: "text-emerald-400",
+    },
+    ASSIGNED: {
+      label: "Assigned",
+      color: "bg-blue-400",
+      text: "text-blue-400",
+    },
+    COMPLETED: {
+      label: "Completed",
+      color: "bg-green-400",
+      text: "text-green-400",
+    },
+    CANCELLED: {
+      label: "Cancelled",
+      color: "bg-red-400",
+      text: "text-red-400",
+    },
+  };
+  
+  const currentStatus =
+    statusConfig[jobStatus as keyof typeof statusConfig] ??
+    statusConfig.OPEN;
 
   return (
   <Card
@@ -68,11 +97,7 @@ export default function JobCard(job: JobCardProps) {
             </h2>
 
             <span
-              className={`h-2 w-2 shrink-0 rounded-full transition-shadow duration-300 ${
-                isOpen
-                  ? "bg-emerald-400 group-hover:shadow-[0_0_10px_#34d399]"
-                  : "bg-zinc-600"
-              }`}
+              className={`h-2 w-2 shrink-0 rounded-full ${currentStatus.color}`}
             />
           </div>
 
@@ -95,7 +120,12 @@ export default function JobCard(job: JobCardProps) {
                 {formatDate(job.deadline)}
               </span>
             </div>
-
+            <div className="grid grid-cols-[100px_1fr] items-center gap-2 text-xs">
+              <span className="text-zinc-500">Job status</span>
+              <span className={`font-semibold ${currentStatus.text}`}>
+                {currentStatus.label}
+              </span>
+            </div>
             <div className="grid grid-cols-[100px_1fr] items-center gap-2 text-xs">
               <span className="text-zinc-500">Bidding closes</span>
               <span className="whitespace-nowrap text-zinc-300">
@@ -105,36 +135,29 @@ export default function JobCard(job: JobCardProps) {
           </div>
 
           {/* Action */}
-          <div
-  className={`flex shrink-0 items-center gap-1.5 pb-0.5 text-xs font-semibold transition-all duration-200 ${
-    isOpen
-      ? "text-zinc-400 group-hover:translate-x-1 group-hover:text-emerald-400"
-      : "text-zinc-600"
-  }`}
->
-  {Userrole === "FREELANCER" && isOpen ? (
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        router.push(`/apply/${job.id}`);
-      }}
-      className="flex items-center gap-1.5"
-    >
-      Apply Now
-      <ArrowUpRight size={15} />
-    </button>
-  ) : Userrole === "CLIENT" && isOpen ? (
-    <>
-      View project
-      <ArrowUpRight size={15} />
-    </>
-  ) : (
-    <>
-      Closed
-      <ArrowUpRight size={15} />
-    </>
-  )}
-</div>
+          <div className="flex shrink-0 items-center gap-1.5 pb-0.5 text-xs font-semibold">
+            {Userrole === "FREELANCER" && isOpen ? (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/apply/${job.id}`);
+                }}
+                className="flex items-center gap-1.5 text-emerald-400"
+              >
+                Apply Now
+                <ArrowUpRight size={15} />
+              </button>
+            ) : Userrole === "CLIENT" ? (
+              <span className="text-zinc-400">
+                View project
+                <ArrowUpRight size={15} />
+              </span>
+            ) : (
+              <span className="text-zinc-500">
+                {currentStatus.label}
+              </span>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

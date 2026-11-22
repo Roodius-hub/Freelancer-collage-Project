@@ -1,5 +1,9 @@
+"use client";
 
 import { BIDS_TYPE } from "@/Types/types";
+import { toast } from "sonner";
+
+import axios from "axios";
 import {
   ArrowLeft,
   CalendarDays,
@@ -14,7 +18,10 @@ import {
 
 import Image from "next/image";
 import Link from "next/link";
-
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import api from "@/lib/axios";
 // type Bid = {
 //   id: string;
 //   amount: number;
@@ -49,11 +56,69 @@ export default function BidDetails({
   // onAccept,
   // onReject,
 }: Props) {
+  const [status, setStatus] = useState(bid.status);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const statusStyles = {
     PENDING: "bg-yellow-500/10 text-yellow-500",
     ACCEPTED: "bg-green-500/10 text-green-500",
     REJECTED: "bg-red-500/10 text-red-500",
   };
+
+  const router = useRouter();
+  const { data: session } = useSession();
+  
+  const [chatLoading, setChatLoading] = useState(false);
+  
+  const handleOpenChat = async () => {
+    try {
+      setChatLoading(true);
+  
+      // Create a conversation or retrieve the existing one
+      const response = await api.post(
+        `/conversations/${bid.id}`
+      );
+  
+      const conversationId = response.data.conversation.id;
+  
+      // Navigate to the chat page
+      router.push(`/chat/${conversationId}`);
+  
+    } catch (error) {
+      console.error("Failed to open conversation:", error);
+    } finally {
+      setChatLoading(false);
+    }
+  };
+    
+  const updateBidStatus = async (
+    newStatus: "ACCEPTED" | "REJECTED"
+  ) => {
+    try {
+      setLoading(true);
+      setError("");
+  
+      const response = await axios.patch(
+        `http://localhost:3001/bids/${bid.id}/status`,
+        { status: newStatus },
+        { withCredentials: true }
+      );
+  
+        setStatus(response.data.updatedBid.status);
+        toast.success(
+              newStatus === "ACCEPTED"
+                ? "Bid accepted successfully!"
+                : "Bid rejected successfully!"
+            );
+    } catch (error) {
+      console.error(error);
+        setError("Unable to update bid status. Please try again.");
+            toast.error("Failed to update bid status.");
+    } finally {
+      setLoading(false);
+    }
+  };
+    
     console.log(bid);
   return (
     <main className="mx-auto max-w-4xl px-4 py-8">
@@ -70,10 +135,10 @@ export default function BidDetails({
 
         <span
           className={`rounded-full px-3 py-1 text-xs font-medium ${
-            statusStyles[bid.status]
+            statusStyles[status]
           }`}
         >
-          {bid.status}
+          {status}
         </span>
       </div>
 
@@ -138,13 +203,13 @@ export default function BidDetails({
           </div>
 
           <h3 className="text-lg font-medium">
-            {bid.job.title}
+            {bid.job.description}
           </h3>
 
           <p className="mt-2 text-sm text-zinc-500">
             Job ID: {bid.job.id}
           </p>
-
+                  {/*<p>{ bid.job.status}</p>*/}
         </section>
 
         {/* Bid information */}
@@ -235,28 +300,43 @@ export default function BidDetails({
         </section>
 
         {/* Actions */}
-        {bid.status === "PENDING" && (
+        {status === "PENDING" && (
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
 
-            <button
-              // onClick={() => onReject?.(bid.id)}
+                      <button
+                          disabled={ loading }
+              onClick={() => updateBidStatus("REJECTED")}
               className="flex items-center justify-center gap-2 rounded-lg border border-red-500/30 px-5 py-3 text-sm text-red-400 hover:bg-red-500/10"
             >
               <X size={17} />
               Reject Bid
             </button>
 
-            <button
-              // onClick={() => onAccept?.(bid.id)}
+                      <button
+                          disabled={ loading }
+              onClick={() => updateBidStatus("ACCEPTED")}
               className="flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-3 text-sm font-medium text-white hover:bg-indigo-500"
             >
               <Check size={17} />
-              Accept Bid
+              {loading ? "Updating..." : "Accept Bid"}
             </button>
 
           </div>
         )}
+        {error && (
+          <p className="text-sm text-red-400">{error}</p>
+              )}
 
+        {/* if accepted */}
+        {bid.status === "ACCEPTED" && (
+          <button
+            onClick={handleOpenChat}
+            disabled={chatLoading}
+            className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {chatLoading ? "Opening Chat..." : "Chat"}
+          </button>
+        )}
       </div>
     </main>
   );

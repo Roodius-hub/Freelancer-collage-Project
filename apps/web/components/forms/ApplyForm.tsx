@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import axios from "axios";
 import ClientInformation from "./ClientInformation";
+import { toast } from "sonner";
 
 type ApplyFormProps = {
   jobId: string;
@@ -66,7 +67,7 @@ useEffect(() => {
         { withCredentials: true }
       );
 
-      setClient(res.data.user);
+        setClient(res.data.user);        
     } catch (err) {
       console.error("Failed to fetch client:", err);
     } finally {
@@ -99,7 +100,7 @@ useEffect(() => {
       year: "numeric",
     });
   };
-
+    console.log(status);
   const isOpen = status?.toUpperCase() === "OPEN";
 
   async function submitBid() {
@@ -131,7 +132,7 @@ useEffect(() => {
     try {
       setLoading(true);
 
-      const response = await fetch(`http://localhost:3001/bids/jobs/${jobId}/?apply=1/role=freelancer`, {
+      const response = await fetch(`http://localhost:3001/bids/jobs/${jobId}/?apply=1&role=freelancer`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -144,18 +145,23 @@ useEffect(() => {
           proposal: proposal.trim(),
         }),
       });
-
+     
       const data = await response.json();
       console.log(data);
       if (!response.ok) {
         throw new Error(data.message || "Failed to submit proposal.");
       }
-
+       toast.success("Applied successfully!");
       router.push("/");
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Something went wrong."
       );
+      toast.error(
+          err instanceof Error
+            ? err.message
+            : "Something went wrong!"
+        );
     } finally {
       setLoading(false);
     }

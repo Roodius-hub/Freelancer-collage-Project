@@ -6,8 +6,8 @@ export type BIDS_TYPE = {
   deliveryDays: number;
   proposal: string;
   status: "PENDING" | "ACCEPTED" | "REJECTED";
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   freelancerId: string;
 
   freelancer: {
@@ -18,7 +18,9 @@ export type BIDS_TYPE = {
 
   job: {
     id: string;
-    title: string;
-    clientId: string;
+    description: string;
+      clientId: string;
+      status: "OPEN" | "ASSIGNED" | "COMPLETED" | "CANCELLED" 
   };
 };
+

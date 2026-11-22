@@ -3,6 +3,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function PostJob() {
   const router = useRouter();
@@ -39,10 +40,16 @@ export default function PostJob() {
 
        console.log(response.data);
        
-       if (response.status == 200) {
+        if (response.status == 200) {
+          toast.success("Job posted successfully!");
           router.push("/")
        } 
     } catch (err) {
+      toast.error(
+          err instanceof Error
+            ? err.message
+            : "Something went wrong!"
+        );
       console.log(err);
     }
 
