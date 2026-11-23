@@ -5,6 +5,7 @@ import { Figtree } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Providers } from "@/app/Provider";
 import { Toaster } from "sonner";
+import { WebSocketProvider } from "@/context/WebSocketContext";
 
 const figtree = Figtree({subsets:['latin'],variable:'--font-sans'});
 
@@ -41,7 +42,9 @@ export default function RootLayout({
         </head>
       <body className={`${brassMono.variable} ${geistMono.variable} bg-[black] text-white maxw-7xl`}>
         <Providers>
-                  {children}
+          <WebSocketProvider>
+                          {children}
+                      </WebSocketProvider>
                   <Toaster
                             position="top-right"
                             richColors

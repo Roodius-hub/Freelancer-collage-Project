@@ -7,7 +7,7 @@ import jobsRouter from "./routes/job";
 import bidRouter from "./routes/bid";
 import resendRouter from "./routes/verification";
 import conversationRouter from "./routes/conversation.routes";
-
+import chatRoutes from "./routes/chat.routes";
 export const app = express();
 
 app.use(express.json());
@@ -22,6 +22,7 @@ app.use("/jobs", jobsRouter);
 app.use("/bids",bidRouter);
 app.use("/verify-user", resendRouter);
 app.use("/conversations", conversationRouter);
+app.use("/chat", chatRoutes);
 
 app.get("/", (req:Request, res:Response) => {
     return res.status(200).json({

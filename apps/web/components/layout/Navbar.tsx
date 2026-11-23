@@ -13,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-
+import { useWebSocket } from "@/context/WebSocketContext";
 import Logosvg from "@/public/logo";
 import UserMenu from "@/lib/Usermenu";
 import api from "@/lib/axios";
@@ -27,7 +27,7 @@ export function Navbar() {
   const [showMessages, setShowMessages] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
-
+  const { subscribe, isConnected } = useWebSocket();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const currentUserId = session?.user?.id;
@@ -35,24 +35,42 @@ export function Navbar() {
 
   // Fetch conversations
   const fetchConversations = async () => {
-    try {
-      setLoadingMessages(true);
-
-      const response = await api.get("/conversations");
-
-      setConversations(response.data.conversations || []);
-    } catch (error) {
-      console.error("Failed to fetch conversations:", error);
-    } finally {
-      setLoadingMessages(false);
-    }
+      try {
+          setLoadingMessages(true);
+  
+          const response = await api.get("/conversations");
+  
+          setConversations(response.data.conversations || []);
+      } catch (error) {
+          console.error("Failed to fetch conversations:", error);
+      } finally {
+          setLoadingMessages(false);
+      }
   };
 
   useEffect(() => {
-    if (status === "authenticated" && currentUserId) {
-      fetchConversations();
-    }
+      if (status === "authenticated" && currentUserId) {
+          fetchConversations();
+      }
   }, [status, currentUserId]);
+
+  // Listen for real-time message notifications
+  useEffect(() => {
+      if (status !== "authenticated") return;
+  
+      const unsubscribe = subscribe((event) => {
+          if (event.type === "message_notification") {
+              console.log("New message notification:", event.payload);
+  
+              // Refresh conversations with the latest backend data
+              fetchConversations();
+          }
+      });
+  
+      return () => {
+          unsubscribe();
+      };
+  }, [status, subscribe]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -184,7 +202,7 @@ export function Navbar() {
 
           {/* MESSAGES DROPDOWN */}
           <div className="relative" ref={dropdownRef}>
-
+              
             <button
               type="button"
               onClick={() => {
@@ -198,10 +216,15 @@ export function Navbar() {
                     ? "border-blue-500/40 bg-blue-600/20 text-blue-400"
                     : "border-[#2a2a2a] bg-[#1a1a1a] text-white hover:bg-[#262626]"
                 }`}
-            >
+                      >
+                          
               <MessageCircle className="size-4" />
               Messages
-
+              {isConnected ? (
+                  <span className="h-2 w-2 rounded-full bg-green-500" />
+              ) : (
+                  <span className="h-2 w-2 rounded-full bg-red-500" />
+              )}
               {unreadCount > 0 && (
                 <span className="absolute -right-2 -top-2
                   flex h-5 min-w-5 items-center justify-center

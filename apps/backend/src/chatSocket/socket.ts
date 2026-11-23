@@ -1,125 +1,145 @@
-import { WebSocketServer, WebSocket as WebSocketWsType } from "ws";
+
+import { WebSocketServer, WebSocket } from "ws";
+import type { CustomWebSocket, IncomingMessage } from "./types";
 import server from "../../server";
-import  { Events }  from "./event";
-import {ChatManager} from "./chatManager/manager";
-// web socket server
-const wss = new WebSocketServer({server});  //attaches WebSocket support to your existing HTTP server
+import { db } from "../db/db";
+import { ChatManager } from "./chatManager/manager";
+import { Events } from "./event";
+import { verifyToken } from "./auth/verrifyToken";
 
-const relayer_URL = "ws://localhost:3001/ws";
-const relayerSocket = new WebSocket(relayer_URL);
+const wss = new WebSocketServer({ server });
 
-const rooms =  ChatManager.getInstance();  
-/*
-    rooms
+const rooms = ChatManager.getInstance();
 
-conversation-1
-   │
-   ├── WebSocket client A
-   ├── WebSocket client B
-   └── WebSocket client C
+wss.on("connection", async (socket, req) => {
+    const ws = socket as CustomWebSocket;
 
-conversation-2
-   │
-   ├── WebSocket client D
-   └── WebSocket client E
-*/
+    // 1. Authenticate the WebSocket connection
+    const decoded = verifyToken(req);
 
-//When the relayer server sends me a message, execute this function
-// relayerSocket.onmessage = ({data}) => {
-//   console.log("Recieved: ", data.toString());
-//   const parsed = JSON.parse(data.toString())
-
-//   const  {type, payload} = parsed;
-
-//   // join conversation
-//   if(type === Events.JOIN_CONVERSATION) {
-//       const { conversationId, text } = payload;
-
-//       if(!rooms.has(conversationId, )) {  // If conversation 123 doesn't exist, create it.
-//           rooms.set(conversationId, new Set());  
-//       }
-      
-//       rooms.get(conversationId)?.add(wss); //Add this WebSocket client to conversation 123.
-//       console.log(rooms);
-//       console.log(`Joined room conversationId: ${conversationId}`);
-//   }
-
-//   // send message 
-//   if(type === Events.SEND_MESSAGE) {
-//       const {conversationId, text} = payload;
-
-//       const room = rooms.get(conversationId);
-
-//       room?.forEach((client) => {
-//           if(client.readyState === WebSocket.OPEN) {
-//               client.send(JSON.stringify({
-//                   type:Events.NEW_MESSAGE,
-//                   payload: {
-//                       text
-//                   }
-//               }))
-//           }
-//       })
-//   }
-// }
-
-relayerSocket.onmessage = ({ data }) => {
-    const { type, payload } = JSON.parse(data.toString());
-
-    if (type === Events.SEND_MESSAGE) {
-        const { conversationId, text } = payload;
-
-        const room = rooms.get(conversationId);
-
-        room?.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({
-                    type: Events.NEW_MESSAGE,
-                    payload: {
-                        conversationId,
-                        text
-                    }
-                }));
-            }
-        });
+    if (!decoded) {
+        ws.close(1008, "Unauthorized");
+        return;
     }
-};
 
-let count = 0;
-// wss.on('connection' , (ws) => {
-//     console.log("client connected !")
-//     count++;
-//     console.log(count)
-//     ws.on('message', (data) => {
-//       relayerSocket.send(data)
-//     })
+    // Identity comes from the verified JWT
+    ws.userId = decoded.id;
 
-//     ws.on('close', () => {
-//             console.log("Client disconnected");
-//     })
+    // 2. Register socket and join user's notification room
+    rooms.registerSocket(ws);
 
-// })  
+    console.log(`WebSocket connected: ${ws.userId}`);
 
-wss.on("connection", (ws) => {
-    count++;
-    console.log(count)
-    ws.on("message", (data) => {
-        const message = JSON.parse(data.toString());
+    // 3. Listen for incoming events
+    ws.on("message", async (rawData) => {
+        try {
+            const message = JSON.parse(rawData.toString()) as IncomingMessage;
 
-        if (message.type === Events.JOIN_CONVERSATION) {
-            const { conversationId } = message.payload;
+            switch (message.type) {
 
-            if (!rooms.has(conversationId)) {
-                rooms.set(conversationId, new Set());
+                // Join a conversation
+                case Events.JOIN_CONVERSATION: {
+                    const { conversationId } = message.payload ?? {};
+
+                    if (
+                        typeof conversationId !== "string" ||
+                        !conversationId.trim()
+                    ) {
+                        return;
+                    }
+
+                    // Verify this user belongs to the conversation
+                    const conversation = await db.conversation.findFirst({
+                        where: {
+                            id: conversationId,
+                            OR: [
+                                { clientId: ws.userId },
+                                { freelancerId: ws.userId },
+                            ],
+                        },
+                        select: { id: true },
+                    });
+
+                    if (!conversation) {
+                        ws.send(JSON.stringify({
+                            type: "error",
+                            payload: {
+                                message: "You cannot access this conversation",
+                            },
+                        }));
+                        return;
+                    }
+
+                    rooms.joinRoom(conversationId, ws);
+                    console.log("USER JOINED ROOM:", {
+                      userId: ws.userId,
+                      conversationId,
+                    });
+                    console.log(
+                        `${ws.userId} joined conversation ${conversationId}`
+                    );
+
+                    break;
+                }
+
+                // Leave a conversation
+                case Events.LEAVE_CONVERSATION: {
+                    const { conversationId } = message.payload ?? {};
+
+                    if (typeof conversationId === "string") {
+                        rooms.leaveRoom(conversationId, ws);
+                    }
+
+                    break;
+                }
+
+                // Typing indicator
+                case Events.TYPING: {
+                    const { conversationId, isTyping } = message.payload ?? {};
+
+                    if (
+                        typeof conversationId !== "string" ||
+                        typeof isTyping !== "boolean"
+                    ) {
+                        return;
+                    }
+
+                    // Only allow typing events in joined rooms
+                    if (!ws.conversation?.has(conversationId)) {
+                        return;
+                    }
+
+                    rooms.broadcastToConversation(
+                        conversationId,
+                        {
+                            type: Events.TYPING,
+                            payload: {
+                                conversationId,
+                                userId: ws.userId,
+                                isTyping,
+                            },
+                        },
+                        ws
+                    );
+
+                    break;
+                }
+
+                default:
+                    console.log("Unknown WebSocket event:", message.type);
             }
-
-            rooms.get(conversationId)?.add(ws);
-
-            console.log(`Joined: ${conversationId}`);
-        }
-
-        if (message.type === Events.SEND_MESSAGE) {
-            relayerSocket.send(data);
+        } catch (error) {
+            console.error("WebSocket message error:", error);
         }
     });
+
+    ws.on("close", () => {
+        console.log(`WebSocket disconnected: ${ws.userId}`);
+    });
+
+    ws.on("error", (error) => {
+        console.error("WebSocket error:", error);
+    });
 });
+
+console.log("WebSocket server initialized");

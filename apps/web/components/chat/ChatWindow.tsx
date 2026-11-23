@@ -3,7 +3,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import api from "@/lib/axios";
-import { ChatMessage, Conversation } from "@/types/chat";
+import { ChatMessage, Conversation } from "@/Types/chat";
+import { useWebSocket } from "@/context/WebSocketContext";
 
 interface Props {
   conversationId: string;
@@ -22,9 +23,27 @@ export default function ChatWindow({
   const [sending, setSending] = useState(false);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
-
+  const { sendMessage, subscribe, isConnected } = useWebSocket();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Join conversation when WebSocket is connected
+  useEffect(() => {
+    if (!isConnected || loading) return;
+  
+    sendMessage({
+      type: "join_conversation",
+      payload: { conversationId },
+    });
+  
+    return () => {
+      sendMessage({
+        type: "leave_conversation",
+        payload: { conversationId },
+      });
+    };
+  }, [conversationId, isConnected, loading, sendMessage]);
+      
+    
   // Load conversation and messages
   useEffect(() => {
     const fetchChat = async () => {
@@ -35,7 +54,7 @@ export default function ChatWindow({
         const [messageResponse, conversationResponse] =
           await Promise.all([
             api.get(`/conversations/${conversationId}/messages`),
-            api.get("/conversations"),
+            api.get("/conversations"),  
           ]);
 
         setMessages(messageResponse.data.messages || []);

@@ -1,7 +1,8 @@
 
 import { Request, Response } from "express";
 import { db } from "../db/db";
-
+import { ChatManager } from "../chatSocket/chatManager/manager";
+import { Events } from "../chatSocket/event";
 // create 
 export const createOrGetConversation = async (
   req: Request,
@@ -300,6 +301,32 @@ export const sendMessage = async (
       },
     });
 
+    // 6. Find the other participant
+    const recipientId =
+        conversation.clientId === userId
+            ? conversation.freelancerId
+            : conversation.clientId;
+    
+    // 7. Broadcast the saved message to active chat windows
+    const rooms = ChatManager.getInstance();
+    
+    rooms.broadcastToConversation(conversationId, {
+        type: Events.NEW_MESSAGE,
+        payload: {
+            conversationId,
+            message: newMessage,
+        },
+    });
+    
+    // 8. Notify the recipient's navbar
+    rooms.broadcastToUser(recipientId, {
+        type: Events.MESSAGE_NOTIFICATION,
+        payload: {
+            conversationId,
+            message: newMessage,
+        },
+    });
+      
     return res.status(201).json({
       message: "Message sent successfully",
       newMessage,
