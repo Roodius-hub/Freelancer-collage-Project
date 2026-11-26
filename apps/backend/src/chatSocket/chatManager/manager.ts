@@ -106,7 +106,7 @@ export class ChatManager {
             this.joinUserRoom(ws.userId, ws);
         }
 
-        ws.on("close", () => {
+        ws.on("close  ", () => {
             for (const conversationId of [...(ws.conversation ?? [])]) {
                 this.leaveRoom(conversationId, ws);
             }

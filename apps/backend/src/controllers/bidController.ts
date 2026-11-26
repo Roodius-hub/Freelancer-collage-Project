@@ -284,7 +284,7 @@ export const updateBidStatus = async (req: Request, res: Response) => {
 
         updatedJob = await tx.job.update({
           where: { id: bid.jobId },
-          data: { status: "ASSIGNED" },
+          data: { status: "ASSIGNED", selectedBidId: bidId as string },
         });
       }
 

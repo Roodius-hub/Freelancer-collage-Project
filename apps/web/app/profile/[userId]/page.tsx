@@ -1,11 +1,10 @@
 
 
-export default function UserDashboard() {
+export default function Profile() {
 
-
+    
     return (
         <div>
-
             
         </div>
     )

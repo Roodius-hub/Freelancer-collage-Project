@@ -12,12 +12,22 @@ import {
   BadgeCheck,
   User,
 } from "lucide-react";
+import ReviewForm from "../shared/Review";
 // import { useEffect, useState } from "react";
-
-function ClientInformation({ client, loading }: {
+interface ClientInformationProps {
   client: any;
   loading: boolean;
-}) {
+  jobCompleted: boolean;
+  alreadyReviewed: boolean;
+  onSubmitReview: (data: {
+    rating: number;
+    comment: string;
+  }) => Promise<void>;
+}
+
+function ClientInformation({ client, loading, jobCompleted,
+ alreadyReviewed,
+ onSubmitReview, }: ClientInformationProps) {
 
     // console.log(client.emailVerifiedAt);
   const formatMemberDate = (date?: string) => {
@@ -188,7 +198,64 @@ function ClientInformation({ client, loading }: {
           </div>
         </div>
       </div>
-
+      {/* Recent Reviews */}
+      <div className="mt-7 border-t border-white/[0.07] pt-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-white">
+            Recent Reviews
+          </h3>
+      
+          <span className="text-xs text-zinc-500">
+            {client.reviews?.length ?? 0} reviews
+          </span>
+        </div>
+      
+        {client.reviews?.length > 0 ? (
+          <div className="mt-4 space-y-5">
+            {client.reviews.slice(0, 3).map((review: any) => (
+              <div key={review.id}>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-zinc-200">
+                    {review.reviewer?.name || "Freelancer"}
+                  </p>
+      
+                  <div className="flex text-amber-400">
+                    {Array.from({ length: 5 }, (_, index) => (
+                      <Star
+                        key={index}
+                        size={13}
+                        fill={
+                          index < review.rating
+                            ? "currentColor"
+                            : "none"
+                        }
+                      />
+                    ))}
+                  </div>
+                </div>
+      
+                <p className="mt-2 text-sm leading-6 text-zinc-400">
+                  {review.comment}
+                </p>
+      
+                <p className="mt-2 text-xs text-zinc-600">
+                  {formatMemberDate(review.createdAt)}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-zinc-500">
+            This client hasn't received any reviews yet.
+          </p>
+              )}
+        {jobCompleted && (
+          <ReviewForm
+            onSubmit={onSubmitReview}
+            alreadyReviewed={alreadyReviewed}
+          />
+        )}
+      </div>
     </aside>
   );
 }

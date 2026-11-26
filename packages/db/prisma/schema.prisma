@@ -41,12 +41,14 @@ model User {
 
   sentMessages Message[] @relation("SenderMessages")
 
-  reviews      Review[] @relation("FreelancerReviews")
+  
   clientConversations      Conversation[] @relation("ClientConversations")
   freelancerConversations  Conversation[] @relation("FreelancerConversations")
   emailverification   EmailVerification[] @relation("UserEmailVerification")
   phoneVerifications  PhoneVerification[] @relation("UserPhoneVerification")
-  
+
+  clientReviews     Review[] @relation("ClientReviews")
+  freelancerReviews Review[] @relation("FreelancerReviews")
 }
 
 model Skill {
@@ -184,23 +186,31 @@ model Message {
 
   @@index([conversationId, createdAt])
 }
+enum ReviewRole {
+  CLIENT
+  FREELANCER
+}
 
 model Review {
-  id             String      @id @default(cuid())
+  id           String     @id @default(cuid())
+  rating       Int
+  comment      String
+  reviewerRole ReviewRole
 
-  rating         Int
-  comment        String?
+  clientId     String
+  freelancerId String
+  jobId        String
 
-  freelancerId   String
-  jobId          String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
-  createdAt      DateTime    @default(now())
+  client       User @relation("ClientReviews", fields: [clientId], references: [id])
+  freelancer   User @relation("FreelancerReviews", fields: [freelancerId], references: [id])
+  job          Job  @relation(fields: [jobId], references: [id])
 
-  freelancer     User        @relation("FreelancerReviews", fields: [freelancerId], references: [id], onDelete: Cascade)
-
-  job            Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
-
-  @@unique([jobId, freelancerId])
+  @@unique([clientId, freelancerId, jobId, reviewerRole])
+  @@index([freelancerId])
+  @@index([clientId])
 }
 
 model EmailVerification {

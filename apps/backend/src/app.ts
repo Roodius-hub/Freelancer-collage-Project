@@ -8,6 +8,7 @@ import bidRouter from "./routes/bid";
 import resendRouter from "./routes/verification";
 import conversationRouter from "./routes/conversation.routes";
 import chatRoutes from "./routes/chat.routes";
+import reviewRoutes from "./routes/review.routes"; 
 export const app = express();
 
 app.use(express.json());
@@ -23,7 +24,7 @@ app.use("/bids",bidRouter);
 app.use("/verify-user", resendRouter);
 app.use("/conversations", conversationRouter);
 app.use("/chat", chatRoutes);
-
+app.use("/reviews", reviewRoutes);
 app.get("/", (req:Request, res:Response) => {
     return res.status(200).json({
       message:"Server Running You nigga !"

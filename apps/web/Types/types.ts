@@ -24,3 +24,19 @@ export type BIDS_TYPE = {
   };
 };
 
+// Reviews
+export type Review = {
+  id: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+  client?: {
+    id: string;
+    name: string | null;
+    picture?: string | null;
+  };
+  job?: {
+    id: string;
+    title: string;
+  };
+};
