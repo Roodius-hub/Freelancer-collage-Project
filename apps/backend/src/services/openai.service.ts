@@ -26,7 +26,7 @@ export const evaluateProposals = async (
   bids: ProposalInput[]
 ) => {
   const response = await openai.chat.completions.create({
-    model: "openai/gpt-oss-120b",
+    model: "openai/gpt-oss-120b",   
     response_format: { type: "json_object" },
     messages: [
       {
