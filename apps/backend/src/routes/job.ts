@@ -1,6 +1,6 @@
 import express from "express";
 import { checkUserExisi } from "../middlewares/user";
-import { createJobs, deleteJob, getJobById, getJobs, jobStatus, updateJob } from "../controllers/jobController";
+import { createJobs, deleteJob, getAllJob_ofCurrentUser, getJobById, getJobs, jobStatus, updateJob } from "../controllers/jobController";
 import { checkRole } from "../middlewares/role";
 
 const router = express.Router();
@@ -21,5 +21,8 @@ router.delete("/delete/:id", checkUserExisi,checkRole('CLIENT') , deleteJob);
 router.patch("/jobstatus/:id", checkUserExisi, checkRole('CLIENT'), jobStatus);
 
 router.get("/getjobs/:id", checkUserExisi, getJobById);
+
+// specific user all jobs
+router.get("/my-jobs", checkUserExisi, getAllJob_ofCurrentUser);
 
 export default router;

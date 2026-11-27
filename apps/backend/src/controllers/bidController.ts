@@ -1,5 +1,6 @@
 import { db } from "../db/db";
 import type { Request, Response } from "express";
+import { evaluateProposals } from "../services/openai.service";
 
 //place bid 
 export const placeBid = async (req: Request, res: Response) => {
@@ -301,6 +302,180 @@ export const updateBidStatus = async (req: Request, res: Response) => {
 
     return res.status(500).json({
       message: "Failed to update bid status",
+    });
+  }
+};
+
+export const getAllBids_ofSpecificJob = async (
+  req: Request,
+  res: Response
+) => {
+  const userid = req.user?.id;
+  const { jobId } = req.params;
+
+  try {
+    if (!userid) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    // Verify that this job belongs to the logged-in client
+    const job = await db.job.findFirst({
+      where: {
+        id: jobId,
+        clientId: userid,
+      },
+    });
+
+    if (!job) {
+      return res.status(404).json({
+        message: "Job not found",
+      });
+    }
+
+    const bids = await db.bid.findMany({
+      where: {
+        jobId: jobId,
+      },
+      include: {
+        freelancer: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return res.status(200).json({
+      message: "Bids fetched successfully",
+      job,
+      bids,
+    });
+
+  } catch (error) {
+    console.error("Error fetching job bids:", error);
+
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};
+
+
+export const evaluateJobProposals = async (
+  req: Request,
+  res: Response
+) => {
+  const userid = req.user?.id;
+  const { jobId } = req.params;
+
+  try {
+    if (!userid) {
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
+    }
+
+    // 1. Verify job ownership
+    const job = await db.job.findFirst({
+      where: {
+        id: jobId,
+        clientId: userid,
+      },
+    });
+
+    if (!job) {
+      return res.status(404).json({
+        message: "Job not found",
+      });
+    }
+
+    // 2. Fetch bids
+    const bids = await db.bid.findMany({
+      where: {
+        jobId,
+      },
+      select: {
+        id: true,
+        proposal: true,
+        amount: true,
+        deliveryDays: true,
+        freelancerId: true,
+      },
+    });
+
+    if (bids.length === 0) {
+      return res.status(404).json({
+        message: "No bids available for evaluation",
+      });
+    }
+
+    // 3. Prepare data for AI
+    const evaluationInput = bids.map((bid) => ({
+      bidId: bid.id,
+      proposal: bid.proposal,
+      amount: bid.amount,
+      deliveryDays: bid.deliveryDays,
+    }));
+
+    // 4. Evaluate proposals using OpenAI
+    const evaluations = await evaluateProposals(
+      job,
+      evaluationInput
+    );
+
+    // 5. Validate AI response
+    if (
+      !Array.isArray(evaluations) ||
+      evaluations.length !== bids.length
+    ) {
+      throw new Error("Invalid AI evaluation response");
+    }
+
+    const bidIds = new Set(bids.map((bid) => bid.id));
+    const evaluatedIds = new Set<string>();
+
+    for (const evaluation of evaluations) {
+      if (
+        !evaluation ||
+        typeof evaluation.bidId !== "string" ||
+        !bidIds.has(evaluation.bidId) ||
+        evaluatedIds.has(evaluation.bidId) ||
+        typeof evaluation.score !== "number" ||
+        !Number.isFinite(evaluation.score) ||
+        evaluation.score < 0 ||
+        evaluation.score > 100 ||
+        typeof evaluation.explanation !== "string" ||
+        !Array.isArray(evaluation.strengths) ||
+        !evaluation.strengths.every(
+          (item: unknown) => typeof item === "string"
+        ) ||
+        !Array.isArray(evaluation.weaknesses) ||
+        !evaluation.weaknesses.every(
+          (item: unknown) => typeof item === "string"
+        )
+      ) {
+        throw new Error("Invalid AI evaluation data");
+      }
+
+      evaluatedIds.add(evaluation.bidId);
+    }
+
+    // 6. Rank proposals by score
+    const rankedEvaluations = [...evaluations].sort(
+      (a, b) => b.score - a.score
+    );
+
+    return res.status(200).json({
+      message: "Proposals evaluated successfully",
+      evaluations: rankedEvaluations,
+    });
+
+  } catch (error) {
+    console.error("Error evaluating proposals:", error);
+
+    return res.status(500).json({
+      message: "Unable to evaluate proposals",
     });
   }
 };

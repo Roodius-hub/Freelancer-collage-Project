@@ -11,6 +11,7 @@ import {
   MessageCircle,
   ChevronRight,
   X,
+  FolderKanban
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useWebSocket } from "@/context/WebSocketContext";
@@ -35,41 +36,41 @@ export function Navbar() {
 
   // Fetch conversations
   const fetchConversations = async () => {
-      try {
-          setLoadingMessages(true);
-  
-          const response = await api.get("/conversations");
-  
-          setConversations(response.data.conversations || []);
-      } catch (error) {
-          console.error("Failed to fetch conversations:", error);
-      } finally {
-          setLoadingMessages(false);
-      }
+    try {
+      setLoadingMessages(true);
+
+      const response = await api.get("/conversations");
+
+      setConversations(response.data.conversations || []);
+    } catch (error) {
+      console.error("Failed to fetch conversations:", error);
+    } finally {
+      setLoadingMessages(false);
+    }
   };
 
   useEffect(() => {
-      if (status === "authenticated" && currentUserId) {
-          fetchConversations();
-      }
+    if (status === "authenticated" && currentUserId) {
+      fetchConversations();
+    }
   }, [status, currentUserId]);
 
   // Listen for real-time message notifications
   useEffect(() => {
-      if (status !== "authenticated") return;
-  
-      const unsubscribe = subscribe((event) => {
-          if (event.type === "message_notification") {
-              console.log("New message notification:", event.payload);
-  
-              // Refresh conversations with the latest backend data
-              fetchConversations();
-          }
-      });
-  
-      return () => {
-          unsubscribe();
-      };
+    if (status !== "authenticated") return;
+
+    const unsubscribe = subscribe((event) => {
+      if (event.type === "message_notification") {
+        console.log("New message notification:", event.payload);
+
+        // Refresh conversations with the latest backend data
+        fetchConversations();
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [status, subscribe]);
 
   // Close dropdown when clicking outside
@@ -146,7 +147,7 @@ export function Navbar() {
 
   return (
     <nav className="bgfixed top-0 left-0 w-full z-50 bg-black border-b border-[#1f1f1f]">
-          <div className="max-w-[1400px] mx-auto flex items-center justify-between p-[0.5]">
+      <div className="max-w-[1400px] mx-auto flex items-center justify-between p-[0.5]">
 
         {/* LOGO */}
         <div
@@ -173,9 +174,22 @@ export function Navbar() {
               Post Job
             </button>
           )}
-
+          {/* MY POSTED JOBS */}
+          {userRole === "CLIENT" && (
+            <button
+              type="button"
+              onClick={() => router.push("/client/jobs")}
+              className="flex items-center gap-2 rounded-lg
+      border border-[#2a2a2a] bg-[#1a1a1a]
+      px-4 py-2 text-xs text-white transition
+      hover:bg-[#6366F1]"
+            >
+              <FolderKanban className="size-4" />
+              My Posted Jobs
+            </button>
+          )}
           {/* HOME */}
-          <button
+          {/* <button
             type="button"
             onClick={() => router.push("/")}
             className="flex items-center gap-2 rounded-lg
@@ -185,10 +199,10 @@ export function Navbar() {
           >
             <HomeIcon className="size-4" />
             Home
-          </button>
+          </button> */}
 
           {/* JOBS */}
-          <button
+          {/* <button
             type="button"
             onClick={() => router.push("/jobs")}
             className="flex items-center gap-2 rounded-lg
@@ -198,11 +212,11 @@ export function Navbar() {
           >
             <Briefcase className="size-4" />
             Jobs
-          </button>
+          </button> */}
 
           {/* MESSAGES DROPDOWN */}
           <div className="relative" ref={dropdownRef}>
-              
+
             <button
               type="button"
               onClick={() => {
@@ -211,19 +225,18 @@ export function Navbar() {
               }}
               className={`relative flex items-center gap-2
                 rounded-lg border px-4 py-2 text-xs
-                transition ${
-                  showMessages
-                    ? "border-blue-500/40 bg-blue-600/20 text-blue-400"
-                    : "border-[#2a2a2a] bg-[#1a1a1a] text-white hover:bg-[#262626]"
+                transition ${showMessages
+                  ? "border-blue-500/40 bg-blue-600/20 text-blue-400"
+                  : "border-[#2a2a2a] bg-[#1a1a1a] text-white hover:bg-[#262626]"
                 }`}
-                      >
-                          
+            >
+
               <MessageCircle className="size-4" />
               Messages
               {isConnected ? (
-                  <span className="h-2 w-2 rounded-full bg-green-500" />
+                <span className="h-2 w-2 rounded-full bg-green-500" />
               ) : (
-                  <span className="h-2 w-2 rounded-full bg-red-500" />
+                <span className="h-2 w-2 rounded-full bg-red-500" />
               )}
               {unreadCount > 0 && (
                 <span className="absolute -right-2 -top-2
@@ -369,17 +382,15 @@ export function Navbar() {
                                 "Project Discussion"}
                             </p>
 
-                            <p className={`mt-1 truncate text-xs ${
-                              isUnread
+                            <p className={`mt-1 truncate text-xs ${isUnread
                                 ? "font-medium text-white"
                                 : "text-slate-500"
-                            }`}>
+                              }`}>
                               {latestMessage
-                                ? `${
-                                    latestMessage.senderId === currentUserId
-                                      ? "You: "
-                                      : ""
-                                  }${latestMessage.text}`
+                                ? `${latestMessage.senderId === currentUserId
+                                  ? "You: "
+                                  : ""
+                                }${latestMessage.text}`
                                 : "Start a conversation"}
                             </p>
                           </div>
